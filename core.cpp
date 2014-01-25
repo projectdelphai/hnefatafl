@@ -12,6 +12,8 @@ int main() {
   Json::Value root;
   Json::Reader reader;
   bool parseSuccess = reader.parse(json_raw, root, false);
+
+  // turn movement
   cout << "Black's Turn" << endl;
   cout << "Original Position?: " << endl;
   string original_position;
@@ -20,9 +22,14 @@ int main() {
   string new_position;
   cin >> new_position;
   if (root[new_position].empty()) {
-    cout << "Valid Move!" << endl;
+    if (original_position.at(0) == new_position.at(0) || original_position.at(1) == new_position.at(1)) {
+      cout << "Valid Move!" << endl;
+    } else {
+      cout << "Invalid Move" << endl;
+    }
   } else {
-    cout << "Invalid Move, try again." << endl;
+    cout << "Invalid Move" << endl;
   }
+
   return 0;
 }
