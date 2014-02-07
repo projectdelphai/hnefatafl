@@ -8,23 +8,35 @@
 using namespace std;
 
 bool valid_move(string player, string original_position, string new_position);
+void query_next_move(string player);
 
 int main() {
   // turn movement
-  cout << "Black's Turn" << endl;
-  cout << "Original Position?: " << endl;
+  bool game_over = false;
+  while (!game_over) {
+    cout << "Black's Turn" << endl;
+    query_next_move("b");
+    cout << "White's Turn" << endl;
+    query_next_move("w");
+  }  
+
+  return 0;
+}
+
+void query_next_move(string player) {
   string original_position;
+  string new_position;
+  
+  cout << "Original Position?: " << endl;
   cin >> original_position;
   cout << "New Position?: " << endl;
-  string new_position;
   cin >> new_position;
-  if (valid_move("b", original_position, new_position)) {
+
+  if (valid_move(player, original_position, new_position)) {
     cout << "Valid Move" << endl;
   } else {
     cout << "Invalid Move" << endl;
   }
-
-  return 0;
 }
 
 bool valid_move(string player, string original_position, string new_position) {
