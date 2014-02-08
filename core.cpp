@@ -9,6 +9,7 @@ using namespace std;
 
 bool valid_move(string player, string original_position, string new_position);
 void query_next_move(string player);
+void make_move(string original_position, string new_position);
 
 int main() {
   // turn movement
@@ -26,16 +27,22 @@ int main() {
 void query_next_move(string player) {
   string original_position;
   string new_position;
-  
-  cout << "Original Position?: " << endl;
-  cin >> original_position;
-  cout << "New Position?: " << endl;
-  cin >> new_position;
+  bool valid_move_made = false;
 
-  if (valid_move(player, original_position, new_position)) {
-    cout << "Valid Move" << endl;
-  } else {
-    cout << "Invalid Move" << endl;
+  while (!valid_move_made) {
+    
+    cout << "Original Position?: " << endl;
+    cin >> original_position;
+    cout << "New Position?: " << endl;
+    cin >> new_position;
+    
+    if (valid_move(player, original_position, new_position)) {
+      cout << "Valid Move" << endl;
+      make_move(original_position, new_position);
+      valid_move_made = true;
+    } else {
+      cout << "Invalid Move" << endl;
+    }
   }
 }
 
@@ -49,6 +56,11 @@ bool valid_move(string player, string original_position, string new_position) {
 
   string current_turn = "b";
   string corner_pieces = "a1 a10 k1 k10";
+  if (root[original_position].empty()) {
+    return false;
+  } else if (root[original_position] == "none") {
+    return false;
+  }
   if (root[new_position].empty()) {
     // checks if not diagonal move
     if (original_position.at(0) == new_position.at(0) || original_position.at(1) == new_position.at(1)) {
@@ -100,5 +112,22 @@ bool valid_move(string player, string original_position, string new_position) {
   } else {
     return false;
   }
+}
 
+void make_move(string original_position, string new_position) {
+  std::ifstream ifs("pieces");
+  std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
+      (std::istreambuf_iterator<char>() ) );
+  Json::Value root;
+  Json::Reader reader;
+  bool parseSuccess = reader.parse(json_raw, root, false);
+
+  Json::Value piece = root[original_position];
+  root[original_position] = "none";
+  root[new_position] = piece;
+
+  ofstream file;
+  file.open("pieces");
+  file << root;
+  file.close();
 }
