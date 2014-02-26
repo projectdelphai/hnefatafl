@@ -25,11 +25,13 @@ int main() {
     end_game = query_next_move("b");
     if (end_game) {
       win("b");
+      game_over = true;
     }
     cout << "White's Turn" << endl;
     end_game = query_next_move("w");
     if (end_game) {
       win("w");
+      game_over = true;
     }
   }  
 
@@ -127,8 +129,6 @@ vector<string> check_for_capture(string new_position) {
         }
       }
       if (allies > 1) {
-        cout << allies << endl;
-        cout << "removing captured piece" << endl;
         ready_for_capture.push_back(position);
       }
     }
@@ -189,7 +189,7 @@ bool valid_move(string player, string original_position, string new_position) {
     cout << "no piece exists at original position (v2)" << endl;
     return false;
   }
-  if (root[new_position].empty()) {
+  if (root[new_position].empty() || root[new_position] == "none") {
     // checks if not diagonal move
     if (original_position.at(0) == new_position.at(0) || original_position.at(1) == new_position.at(1)) {
       // checks if corner 
@@ -206,7 +206,7 @@ bool valid_move(string player, string original_position, string new_position) {
           std::string pieceInWay = "false";
           for (int i=start+1; i < end+1; i++) {
             Json::Value node = root[original_position.at(0) + std::to_string(i)];
-            if (node.isNull() == 0) {
+            if (node.empty() == false && node != "none") {
               pieceInWay = "true";
             }
           }
@@ -219,13 +219,18 @@ bool valid_move(string player, string original_position, string new_position) {
         // horizontal check
         } else {
           std::string pieceInWay = "false";
-          std::string alphabet = "abcdefghijk";
-          char start = original_position.at(0);
-          char end = new_position.at(0);
-          std::string substring = alphabet.substr(alphabet.find(start)+1, alphabet.find(end));
-          for (char c : substring) {
-            Json::Value node = root[c + new_position.at(1)];
-            if (node.isNull() == 0) {
+          char start;
+          char end;
+          if (original_position.at(0) < new_position.at(0)) {
+            start = static_cast<char>(original_position.at(0)+1);
+            end = new_position.at(0);
+          } else {
+            start = new_position.at(0);
+            end = static_cast<char>(original_position.at(0)-1);
+          }
+          for (char i=start; i < end; i = static_cast<char>(i+1)) {
+            Json::Value node = root[std::string() + i + new_position.at(1)];
+            if (node.empty() == false && node != "none") {
               pieceInWay = "true";
             }
           }
