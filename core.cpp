@@ -8,30 +8,54 @@
 using namespace std;
 
 bool valid_move(string player, string original_position, string new_position);
-void query_next_move(string player);
+bool query_next_move(string player);
 void make_move(string original_position, string new_position);
 vector<string> check_for_capture(string new_position);
 void remove_captured(vector<string> captured);
 vector<string> get_adjacent_pieces(Json::Value root, string new_position);
 bool valid_piece(Json::Value root, string position);
+void win(string player);
 
 int main() {
   // turn movement
   bool game_over = false;
+  bool end_game = false;
   while (!game_over) {
     cout << "Black's Turn" << endl;
-    query_next_move("b");
+    end_game = query_next_move("b");
+    if (end_game) {
+      win("b");
+    }
     cout << "White's Turn" << endl;
-    query_next_move("w");
+    end_game = query_next_move("w");
+    if (end_game) {
+      win("w");
+    }
   }  
 
   return 0;
 }
 
-void query_next_move(string player) {
+void win(string player) {
+  if (player == "w") {
+    cout << "White wins!" << endl;
+  } else {
+    cout << "Black wins!" << endl;
+  }
+}
+
+bool query_next_move(string player) {
+  std::ifstream ifs("pieces");
+  std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
+      (std::istreambuf_iterator<char>() ) );
+  Json::Value root;
+  Json::Reader reader;
+  bool parseSuccess = reader.parse(json_raw, root, false);
+
   string original_position;
   string new_position;
   bool valid_move_made = false;
+  bool end_game = false;
 
   while (!valid_move_made) {
     
@@ -43,13 +67,24 @@ void query_next_move(string player) {
     if (valid_move(player, original_position, new_position)) {
       cout << "Valid Move" << endl;
       make_move(original_position, new_position);
+      if (player == "w") {
+        if (new_position == "a1" || new_position == "k0" || new_position == "a11" || new_position == "k11") {
+          end_game = true;
+        }
+      }
       vector<string> captured = check_for_capture(new_position);
+      for (string position : captured) {
+        if (root[position].asString() == "king") {
+          end_game = true;
+        }
+      }
       remove_captured(captured);
       valid_move_made = true;
     } else {
       cout << "Invalid Move" << endl;
     }
   }
+  return end_game;
 }
 
 void remove_captured(vector<string> captured) {
@@ -71,10 +106,6 @@ void remove_captured(vector<string> captured) {
 }
 
 vector<string> check_for_capture(string new_position) {
-  std::map<string, string> opposite;
-  opposite["b"] = "w";
-  opposite["w"] = "b";
-  
   std::ifstream ifs("pieces");
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
@@ -89,8 +120,15 @@ vector<string> check_for_capture(string new_position) {
   for (string position : adjacent_pieces) {
     if (root[position].asString().at(0) != ally) {
       vector<string> adjacent_pieces_2 = get_adjacent_pieces(root, position);
-      int allies = adjacent_pieces_2.size();
+      int allies = 0;
+      for (string position : adjacent_pieces_2) {
+        if (root[position].asString().at(0) == ally) {
+          allies = allies + 1;
+        }
+      }
       if (allies > 1) {
+        cout << allies << endl;
+        cout << "removing captured piece" << endl;
         ready_for_capture.push_back(position);
       }
     }
@@ -145,8 +183,10 @@ bool valid_move(string player, string original_position, string new_position) {
   string current_turn = "b";
   string corner_pieces = "a1 a10 k1 k10";
   if (root[original_position].empty()) {
+    cout << "no piece exists at original position (v1)" << endl;
     return false;
   } else if (root[original_position] == "none") {
+    cout << "no piece exists at original position (v2)" << endl;
     return false;
   }
   if (root[new_position].empty()) {
@@ -155,6 +195,7 @@ bool valid_move(string player, string original_position, string new_position) {
       // checks if corner 
       std::size_t corner_found = corner_pieces.find(new_position);
       if (corner_found != std::string::npos) {
+        cout << "corner found" << endl;
         return false;
       } else {
         // checks if piece is in way
@@ -170,6 +211,7 @@ bool valid_move(string player, string original_position, string new_position) {
             }
           }
           if (pieceInWay == "true") {
+            cout << "piece is in vertical way" << endl;
             return false;
           } else {
             return true;
@@ -188,6 +230,7 @@ bool valid_move(string player, string original_position, string new_position) {
             }
           }
           if (pieceInWay == "true") {
+            cout << "piece is in horizontal way" << endl;
             return false;
           } else {
             return true;
@@ -195,9 +238,11 @@ bool valid_move(string player, string original_position, string new_position) {
         }
       }
     } else {
+      cout << "diagonal move" << endl;
       return false;
     }
   } else {
+    cout << "space taken" << endl;
     return false;
   }
 }
