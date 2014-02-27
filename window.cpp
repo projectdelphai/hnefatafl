@@ -4,6 +4,11 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QFrame>
+#include <QPainter>
+#include <QGraphicsPixmapItem>
+#include <QPixmap>
+#include <QLabel>
+#include <QColor>
 
 #include "json/json.h"
 
@@ -39,9 +44,18 @@ Window::Window(QWidget *parent) : QWidget(parent)
     int first = position.at(0)-'a';
     string x = position.substr(1);
     int second = horizValues[atoi(x.c_str())-1];
-    QFrame *frame = new QFrame();
-    frame->setLineWidth(5);
-    frame->setFrameShape(QFrame::Box);
-    grid->addWidget(frame, second, first);
+    QPixmap image(45,45);
+    image.fill(palette().color(QPalette::Window));
+    QPainter painter(&image);
+    char piece = root[position].asString().at(0);
+    if (piece == 'w' || piece == 'k') {
+      painter.setBrush(Qt::white);
+    } else {
+      painter.setBrush(Qt::black);
+    }
+    painter.drawEllipse(9,9,30,30);
+    QLabel *label = new QLabel();
+    label->setPixmap(image);
+    grid->addWidget(label, second, first, Qt::AlignJustify);
   }
 }
