@@ -36,7 +36,6 @@ Window::Window(QWidget *parent) : QWidget(parent)
   int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
   for( Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++ ) {
     string position = itr.key().asString();
-    cout << position << endl;
     int first = position.at(0)-'a';
     string x = position.substr(1);
     int second = horizValues[atoi(x.c_str())-1];

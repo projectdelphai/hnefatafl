@@ -96,26 +96,26 @@ bool Core::valid_piece(Json::Value root, string position) {
 
 vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
   char first_char = position.at(0);
-  char second_char = position.at(1);
+  string second = position.substr(1);
   vector<string> pieces;
-  if (second_char != 'k') {
-    if (valid_piece(root, first_char+std::to_string((second_char-'0')+1))) {
-      pieces.push_back(first_char+std::to_string((second_char-'0')+1));
+  if (second != "11") {
+    if (valid_piece(root, first_char+std::to_string(atoi(second.c_str())+1))) {
+      pieces.push_back(first_char+std::to_string((atoi(second.c_str()))+1));
     }
   }
-  if (second_char != 'a') {
-    if (valid_piece(root, first_char+std::to_string((second_char-'0')-1))) {
-      pieces.push_back(first_char+std::to_string((second_char-'0')-1));
+  if (second != "1") {
+    if (valid_piece(root, first_char+std::to_string((atoi(second.c_str()))-1))) {
+      pieces.push_back(first_char+std::to_string((atoi(second.c_str()))-1));
     }
   }
-  if (first_char != 11) {
-    if (valid_piece(root, std::string()+(static_cast<char>(first_char+1))+second_char)) {
-      pieces.push_back(std::string()+(first_char++)+second_char);
+  if (first_char != 'k') {
+    if (valid_piece(root, std::string()+(static_cast<char>(first_char+1))+second)) {
+      pieces.push_back(std::string()+(first_char++)+second);
     }
   }
-  if (first_char != 1) {
-    if (valid_piece(root, std::string()+(static_cast<char>(first_char-1))+second_char)) {
-      pieces.push_back(std::string()+(static_cast<char>(first_char-1))+second_char);
+  if (first_char != 'a') {
+    if (valid_piece(root, std::string()+(static_cast<char>(first_char-1))+second)) {
+      pieces.push_back(std::string()+(static_cast<char>(first_char-1))+second);
     }
   }
   return pieces;
@@ -140,7 +140,7 @@ bool Core::valid_move(string original_position, string new_position) {
   }
   if (root[new_position].empty() || root[new_position] == "none") {
     // checks if not diagonal move
-    if (original_position.at(0) == new_position.at(0) || original_position.at(1) == new_position.at(1)) {
+    if (original_position.at(0) == new_position.at(0) || original_position.substr(1) == new_position.substr(1)) {
       // checks if corner 
       std::size_t corner_found = corner_pieces.find(new_position);
       if (corner_found != std::string::npos) {
@@ -150,8 +150,8 @@ bool Core::valid_move(string original_position, string new_position) {
         // checks if piece is in way
         // vertical check
         if (original_position.at(0) == new_position.at(0)) {
-          int start = (char)original_position.at(1) - 48;
-          int end = (char)new_position.at(1) - 48;
+          int start = atoi(original_position.substr(1).c_str());
+          int end = atoi(new_position.substr(1).c_str());
           std::string pieceInWay = "false";
           for (int i=start+1; i < end+1; i++) {
             Json::Value node = root[original_position.at(0) + std::to_string(i)];
@@ -178,7 +178,7 @@ bool Core::valid_move(string original_position, string new_position) {
             end = static_cast<char>(original_position.at(0)-1);
           }
           for (char i=start; i < end; i = static_cast<char>(i+1)) {
-            Json::Value node = root[std::string() + i + new_position.at(1)];
+            Json::Value node = root[std::string() + i + new_position.substr(1)];
             if (node.empty() == false && node != "none") {
               pieceInWay = "true";
             }
