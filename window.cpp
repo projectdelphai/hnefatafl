@@ -23,17 +23,14 @@ Window::Window(QWidget *parent) : QWidget(parent)
 {
   grid = new QGridLayout(this);
   grid->setSpacing(0); 
-  updateBoard();
-}
 
-void Window::updateBoard() {
-  signalMapper = new QSignalMapper(this);
   int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
   std::ifstream ifs("pieces");
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Reader reader;
   reader.parse(json_raw, root, false);
+  signalMapper = new QSignalMapper(this);
 
   for (int i=0; i<11; i++) {
     for (int j=0; j<11; j++) {
@@ -48,7 +45,18 @@ void Window::updateBoard() {
       grid->addWidget(btn, i, j);
     }
   }
-  
+
+  updateBoard();
+}
+
+void Window::updateBoard() {
+  int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+  std::ifstream ifs("pieces");
+  std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
+      (std::istreambuf_iterator<char>() ) );
+  Json::Reader reader;
+  reader.parse(json_raw, root, false);
+
   for( Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++ ) {
     string position = itr.key().asString();
     int first = position.at(0)-'a';
@@ -61,8 +69,9 @@ void Window::updateBoard() {
     char piece = root[position].asString().at(0);
     if (piece == 'w' || piece == 'k') {
       pal.setColor(QPalette::Button, Qt::blue);
-    } else {
+    } else if (piece == 'b') {
       pal.setColor(QPalette::Button, QColor(Qt::gray).dark());
+    } else {
     }
     btn->setPalette(pal);
     connect(btn, SIGNAL(clicked()), signalMapper, SLOT(map()));
@@ -90,6 +99,7 @@ void Window::ButtonClicked(const QString text) {
       if (success == "success") {
         cout << success << endl;
         isPieceChosen = false;
+        disconnect(signalMapper, 0, this, 0);
       }
       updateBoard();
     }
