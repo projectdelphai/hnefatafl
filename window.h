@@ -5,6 +5,11 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QSignalMapper>
+#include "json/json.h"
+
+#include <iostream>
+
+using namespace std;
 
 class Window : public QWidget
 {
@@ -12,9 +17,16 @@ class Window : public QWidget
 
   public:
     Window(QWidget *parent = 0);
-    
+   
+  private slots: 
+    void ButtonClicked(const QString text);
+
   private:
     QSignalMapper *signalMapper;
+    string old_position;
+    string new_position;
+    bool isPieceChosen;
+    Json::Value root;
 };
 
 #endif
