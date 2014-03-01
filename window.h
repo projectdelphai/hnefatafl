@@ -2,9 +2,11 @@
 #define WINDOW_H
 
 #include <QWidget>
+#include <QGridLayout>
 #include <QApplication>
 #include <QPushButton>
 #include <QSignalMapper>
+
 #include "json/json.h"
 
 #include <iostream>
@@ -22,11 +24,15 @@ class Window : public QWidget
     void ButtonClicked(const QString text);
 
   private:
+    QGridLayout *grid;
     QSignalMapper *signalMapper;
-    string old_position;
+    string original_position;
     string new_position;
-    bool isPieceChosen;
+    string player;
+    bool isPieceChosen = false;
     Json::Value root;
+
+    void updateBoard();
 };
 
 #endif
