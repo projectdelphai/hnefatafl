@@ -100,6 +100,10 @@ void Window::ButtonClicked(const QString text) {
         cout << success << endl;
         isPieceChosen = false;
         disconnect(signalMapper, 0, this, 0);
+      } else if (success == "bw") {
+        cout << "black wins!" << endl;
+      } else if (success == "ww") {
+        cout<< "white wins!" << endl;
       }
       updateBoard();
     }

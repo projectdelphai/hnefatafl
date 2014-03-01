@@ -87,7 +87,7 @@ vector<string> Core::check_for_capture(string new_position) {
 
 bool Core::valid_piece(Json::Value root, string position) {
   Json::Value node = root[position];
-  if (node.isNull() == 0) {
+  if (node.empty() == false && node != "none") {
     return true;
   } else {
     return false;
@@ -110,7 +110,7 @@ vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
   }
   if (first_char != 'k') {
     if (valid_piece(root, std::string()+(static_cast<char>(first_char+1))+second)) {
-      pieces.push_back(std::string()+(first_char++)+second);
+      pieces.push_back(std::string()+(static_cast<char>(first_char+1))+second);
     }
   }
   if (first_char != 'a') {
