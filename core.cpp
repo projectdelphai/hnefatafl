@@ -21,7 +21,7 @@ string Core::query_next_move(string player, string original_position, string new
   if (valid_move(original_position, new_position)) {
     make_move(original_position, new_position);
     if (player == "k") {
-      if (new_position == "a1" || new_position == "k0" || new_position == "a11" || new_position == "k11") {
+      if (new_position == "a1" || new_position == "k1" || new_position == "a11" || new_position == "k11") {
         value = "ww";
       }
     }
