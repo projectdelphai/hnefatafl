@@ -9,7 +9,7 @@
 
 using namespace std;
 
-string Core::query_next_move(string player, string original_position, string new_position) {
+string Core::query_next_move(string original_position, string new_position) {
   std::ifstream ifs("pieces");
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
@@ -20,7 +20,8 @@ string Core::query_next_move(string player, string original_position, string new
   string value = "success";
   if (valid_move(original_position, new_position)) {
     make_move(original_position, new_position);
-    if (player == "k") {
+    if (root[original_position].asString() == "king") {
+      cout << "here" << endl;
       if (new_position == "a1" || new_position == "k1" || new_position == "a11" || new_position == "k11") {
         value = "ww";
       }
@@ -221,6 +222,13 @@ void Core::make_move(string original_position, string new_position) {
   Json::Value piece = root[original_position];
   root[original_position] = "none";
   root[new_position] = piece;
+
+  map<string,string> players;
+  players["w"] = "b";
+  players["b"] = "w";
+  string old_player = root["player"].asString();
+  string current_player = players[old_player];
+  root["player"] = current_player;
 
   ofstream file;
   file.open("pieces");
