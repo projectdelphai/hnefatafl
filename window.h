@@ -33,6 +33,7 @@ class Window : public QWidget
     Json::Value root;
 
     void updateBoard();
+    void freeze_window();
 };
 
 #endif

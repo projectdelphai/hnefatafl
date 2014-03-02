@@ -62,9 +62,7 @@ void Window::updateBoard() {
     int first = position.at(0)-'a';
     string x = position.substr(1);
     int second = horizValues[atoi(x.c_str())-1];
-    QPushButton *btn = new QPushButton();
-    btn->setMinimumWidth(55);
-    btn->setMinimumHeight(55);
+    QPushButton *btn = (QPushButton*)grid->itemAtPosition(second, first)->widget();
     QPalette pal = btn->palette();
     char piece = root[position].asString().at(0);
     if (piece == 'w' || piece == 'k') {
@@ -72,15 +70,22 @@ void Window::updateBoard() {
     } else if (piece == 'b') {
       pal.setColor(QPalette::Button, QColor(Qt::gray).dark());
     } else {
+      QPushButton *btn2 = new QPushButton();
+      QPalette pal2 = btn2->palette();
+      pal.setColor(QPalette::Button, pal2.color(QPalette::Button));
     }
     btn->setPalette(pal);
-    connect(btn, SIGNAL(clicked()), signalMapper, SLOT(map()));
-    QString pos = QString::fromStdString(position);
-    signalMapper->setMapping(btn, pos);
-    grid->addWidget(btn, second, first, Qt::AlignJustify);
   }
   connect(signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(ButtonClicked(const QString &)));
 
+}
+
+void Window::freeze_window() {
+  int number = grid->count();
+  cout << number << endl;
+  for (int j=0; j<grid->count(); j++) {
+      grid->itemAt(j)->widget()->setEnabled(false);
+  }
 }
 
 void Window::ButtonClicked(const QString text) {
@@ -98,13 +103,15 @@ void Window::ButtonClicked(const QString text) {
       string success = core->query_next_move(player, original_position, new_position);
       if (success == "success") {
         cout << success << endl;
-        isPieceChosen = false;
-        disconnect(signalMapper, 0, this, 0);
       } else if (success == "bw") {
-        cout << "black wins!" << endl;
+        cout<< "black wins!" << endl;
+        freeze_window();
       } else if (success == "ww") {
         cout<< "white wins!" << endl;
+        freeze_window();
       }
+      isPieceChosen = false;
+      disconnect(signalMapper, 0, this, 0);
       updateBoard();
     }
   } else {
