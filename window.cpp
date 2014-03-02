@@ -2,26 +2,24 @@
 #include <json/json.h>
 
 #include <QSignalMapper>
-#include <QVBoxLayout>
 #include <QGridLayout>
-#include <QFrame>
-#include <QPainter>
-#include <QGraphicsPixmapItem>
-#include <QPixmap>
-#include <QLabel>
-#include <QColor>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QPushButton>
 #include <QSignalMapper>
+#include <QLabel>
 
 #include <iostream>
 #include <fstream>
+#include <stdio.h>
 #include "core.h"
 
 using namespace std;
 
 Window::Window(QWidget *parent) : QWidget(parent)
 {
-  grid = new QGridLayout(this);
+  QVBoxLayout *vbox = new QVBoxLayout(this);
+  grid = new QGridLayout();
   grid->setSpacing(0); 
 
   int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
@@ -46,11 +44,44 @@ Window::Window(QWidget *parent) : QWidget(parent)
     }
   }
 
+  QHBoxLayout *topStatus = new QHBoxLayout();
+  status = new QLabel("Status");
+  QPushButton *connectToPlayer = new QPushButton("Connect");
+  QPushButton *newGame = new QPushButton("New Game");
+  connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
+  topStatus->addWidget(status);
+  topStatus->addWidget(connectToPlayer);
+  topStatus->addWidget(newGame);
+
+  vbox->addLayout(topStatus);
+  vbox->addLayout(grid);
+
   updateBoard();
+}
+
+void Window::resetBoard() {
+  std::ifstream src("pieces.bk", std::ios::binary);
+  std::ofstream dst("pieces", std::ios::binary);
+  dst << src.rdbuf();
+
+  for (int i=0; i<11; i++) {
+    for (int j=0; j<11; j++) {
+      QPushButton *btn = (QPushButton*)grid->itemAtPosition(i,j)->widget();
+      QPushButton *defaultBtn = new QPushButton();
+      QPalette pal = btn->palette();
+      QPalette pal2 = defaultBtn->palette();
+      pal.setColor(QPalette::Button, pal2.color(QPalette::Button));
+      btn->setPalette(pal);
+    }
+  }
+  
+  disconnect(signalMapper, 0, this, 0);
+  //updateBoard();
 }
 
 void Window::updateBoard() {
   int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
   std::ifstream ifs("pieces");
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
@@ -92,7 +123,6 @@ void Window::freeze_window() {
 }
 
 void Window::ButtonClicked(const QString text) {
-  cout << text.toUtf8().constData() << endl;
   string position = text.toUtf8().constData();
   string piece = root[position].asString();
   string color;
@@ -108,15 +138,16 @@ void Window::ButtonClicked(const QString text) {
         new_position = position;
         Core *core = new Core();
         string success = core->query_next_move(original_position, new_position);
-        if (success == "success") {
-          cout << success << endl;
-        } else if (success == "bw") {
-          cout<< "black wins!" << endl;
-         freeze_window();
+        if (success == "bw") {
+          status->setText("Black wins!");
+          freeze_window();
          
         } else if (success == "ww") {
-          cout<< "white wins!" << endl;
+          status->setText("White wins!");
           freeze_window();
+        } else if (success == "invalid") {
+          QString error = QString::fromStdString(core->status);
+          status->setText(error);
         }
         isPieceChosen = false;
         disconnect(signalMapper, 0, this, 0);

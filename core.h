@@ -10,6 +10,7 @@ class Core
 {
   public:
     string query_next_move(string original_position, string new_position);
+    string status;
 
   private:
     bool valid_move(string original_position, string new_position);

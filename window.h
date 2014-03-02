@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QSignalMapper>
+#include <QLabel>
 
 #include "json/json.h"
 
@@ -19,9 +20,11 @@ class Window : public QWidget
 
   public:
     Window(QWidget *parent = 0);
+    Json::Value root;
    
   private slots: 
     void ButtonClicked(const QString text);
+    void resetBoard();
 
   private:
     QGridLayout *grid;
@@ -30,7 +33,7 @@ class Window : public QWidget
     string new_position;
     string player;
     bool isPieceChosen = false;
-    Json::Value root;
+    QLabel *status;
 
     void updateBoard();
     void freeze_window();

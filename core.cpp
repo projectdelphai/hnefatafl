@@ -21,7 +21,6 @@ string Core::query_next_move(string original_position, string new_position) {
   if (valid_move(original_position, new_position)) {
     make_move(original_position, new_position);
     if (root[original_position].asString() == "king") {
-      cout << "here" << endl;
       if (new_position == "a1" || new_position == "k1" || new_position == "a11" || new_position == "k11") {
         value = "ww";
       }
@@ -138,11 +137,8 @@ bool Core::valid_move(string original_position, string new_position) {
 
   string current_turn = "b";
   string corner_pieces = "a1 a11 k1 k11";
-  if (root[original_position].empty()) {
-    cout << "no piece exists at original position (v1)" << endl;
-    return false;
-  } else if (root[original_position] == "none") {
-    cout << "no piece exists at original position (v2)" << endl;
+  if (root[original_position].empty() || root[original_position] == "none") {
+    status = "Starting piece doesn't exist";
     return false;
   }
   if (root[new_position].empty() || root[new_position] == "none") {
@@ -152,7 +148,7 @@ bool Core::valid_move(string original_position, string new_position) {
       std::size_t corner_found = corner_pieces.find(new_position);
       if (corner_found != std::string::npos) {
         if (root[original_position].asString() != "king") {
-          cout << "corner found" << endl;
+          status = "Cannot place piece in corner";
           return false;
         }
         return true;
@@ -170,7 +166,7 @@ bool Core::valid_move(string original_position, string new_position) {
             }
           }
           if (pieceInWay == "true") {
-            cout << "piece is in vertical way" << endl;
+            status = "There is a piece in the way";
             return false;
           } else {
             return true;
@@ -194,7 +190,7 @@ bool Core::valid_move(string original_position, string new_position) {
             }
           }
           if (pieceInWay == "true") {
-            cout << "piece is in horizontal way" << endl;
+            status = "There is a piece in the way";
             return false;
           } else {
             return true;
@@ -202,11 +198,11 @@ bool Core::valid_move(string original_position, string new_position) {
         }
       }
     } else {
-      cout << "diagonal move" << endl;
+      status = "Pieces cannot move diagonally";
       return false;
     }
   } else {
-    cout << "space taken" << endl;
+    status = "That space is already taken";
     return false;
   }
 }
