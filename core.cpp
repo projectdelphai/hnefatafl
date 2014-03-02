@@ -78,7 +78,13 @@ vector<string> Core::check_for_capture(string new_position) {
         }
       }
       if (allies > 1) {
-        ready_for_capture.push_back(position);
+        if (root[position].asString() == "king") {
+          if (allies > 3 && ally != 'w') {
+            ready_for_capture.push_back(position);
+          }
+        } else {
+          ready_for_capture.push_back(position);
+        }
       }
     }
   }
