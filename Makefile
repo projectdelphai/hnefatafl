@@ -12,12 +12,12 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DASIO_STANDALONE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 CXXFLAGS      = -pipe -std=c++0x -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/qt/mkspecs/linux-g++ -I. -I. -I/usr/include/qt -I/usr/include/qt/QtWidgets -I/usr/include/qt/QtGui -I/usr/include/qt/QtCore -I.
 LINK          = g++
-LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -L../hnefatafl -Wl,-O1
+LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -L../hnefatafl -L../asio -Wl,-O1
 LIBS          = $(SUBLIBS) -ljson_linux-gcc-4.8.2_libmt -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
@@ -47,10 +47,12 @@ OBJECTS_DIR   = ./
 
 SOURCES       = core.cpp \
 		hnefatafl.cpp \
-		window.cpp moc_window.cpp
+		window.cpp \
+		multiplayer.cpp moc_window.cpp
 OBJECTS       = core.o \
 		hnefatafl.o \
 		window.o \
+		multiplayer.o \
 		moc_window.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/shell-unix.conf \
@@ -321,7 +323,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/hnefatafl1.0.0 || mkdir -p .tmp/hnefatafl1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents core.h window.h .tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents core.cpp hnefatafl.cpp window.cpp .tmp/hnefatafl1.0.0/ && (cd `dirname .tmp/hnefatafl1.0.0` && $(TAR) hnefatafl1.0.0.tar hnefatafl1.0.0 && $(COMPRESS) hnefatafl1.0.0.tar) && $(MOVE) `dirname .tmp/hnefatafl1.0.0`/hnefatafl1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/hnefatafl1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents core.h window.h multiplayer.h .tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents core.cpp hnefatafl.cpp window.cpp multiplayer.cpp .tmp/hnefatafl1.0.0/ && (cd `dirname .tmp/hnefatafl1.0.0` && $(TAR) hnefatafl1.0.0.tar hnefatafl1.0.0 && $(COMPRESS) hnefatafl1.0.0.tar) && $(MOVE) `dirname .tmp/hnefatafl1.0.0`/hnefatafl1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/hnefatafl1.0.0
 
 
 clean:compiler_clean 
@@ -455,6 +457,11 @@ moc_window.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtCore/qfiledevice.h \
 		/usr/include/qt/QtGui/qvector2d.h \
 		/usr/include/qt/QtGui/qtouchdevice.h \
+		/usr/include/qt/QtWidgets/QGridLayout \
+		/usr/include/qt/QtWidgets/qgridlayout.h \
+		/usr/include/qt/QtWidgets/qlayout.h \
+		/usr/include/qt/QtWidgets/qlayoutitem.h \
+		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/QApplication \
 		/usr/include/qt/QtWidgets/qapplication.h \
 		/usr/include/qt/QtCore/qcoreapplication.h \
@@ -468,6 +475,17 @@ moc_window.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtGui/qicon.h \
 		/usr/include/qt/QtCore/QSignalMapper \
 		/usr/include/qt/QtCore/qsignalmapper.h \
+		/usr/include/qt/QtWidgets/QLabel \
+		/usr/include/qt/QtWidgets/qlabel.h \
+		/usr/include/qt/QtWidgets/qframe.h \
+		json/json.h \
+		json/autolink.h \
+		json/config.h \
+		json/value.h \
+		json/forwards.h \
+		json/reader.h \
+		json/features.h \
+		json/writer.h \
 		window.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include window.h -o moc_window.cpp
 
@@ -605,6 +623,11 @@ hnefatafl.o: hnefatafl.cpp window.h \
 		/usr/include/qt/QtCore/qfiledevice.h \
 		/usr/include/qt/QtGui/qvector2d.h \
 		/usr/include/qt/QtGui/qtouchdevice.h \
+		/usr/include/qt/QtWidgets/QGridLayout \
+		/usr/include/qt/QtWidgets/qgridlayout.h \
+		/usr/include/qt/QtWidgets/qlayout.h \
+		/usr/include/qt/QtWidgets/qlayoutitem.h \
+		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/QApplication \
 		/usr/include/qt/QtWidgets/qapplication.h \
 		/usr/include/qt/QtCore/qcoreapplication.h \
@@ -618,7 +641,9 @@ hnefatafl.o: hnefatafl.cpp window.h \
 		/usr/include/qt/QtGui/qicon.h \
 		/usr/include/qt/QtCore/QSignalMapper \
 		/usr/include/qt/QtCore/qsignalmapper.h \
-		core.h \
+		/usr/include/qt/QtWidgets/QLabel \
+		/usr/include/qt/QtWidgets/qlabel.h \
+		/usr/include/qt/QtWidgets/qframe.h \
 		json/json.h \
 		json/autolink.h \
 		json/config.h \
@@ -627,6 +652,7 @@ hnefatafl.o: hnefatafl.cpp window.h \
 		json/reader.h \
 		json/features.h \
 		json/writer.h \
+		core.h \
 		/usr/include/qt/QtWidgets/QDesktopWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o hnefatafl.o hnefatafl.cpp
 
@@ -739,6 +765,11 @@ window.o: window.cpp window.h \
 		/usr/include/qt/QtCore/qfiledevice.h \
 		/usr/include/qt/QtGui/qvector2d.h \
 		/usr/include/qt/QtGui/qtouchdevice.h \
+		/usr/include/qt/QtWidgets/QGridLayout \
+		/usr/include/qt/QtWidgets/qgridlayout.h \
+		/usr/include/qt/QtWidgets/qlayout.h \
+		/usr/include/qt/QtWidgets/qlayoutitem.h \
+		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/QApplication \
 		/usr/include/qt/QtWidgets/qapplication.h \
 		/usr/include/qt/QtCore/qcoreapplication.h \
@@ -751,8 +782,739 @@ window.o: window.cpp window.h \
 		/usr/include/qt/QtWidgets/qabstractbutton.h \
 		/usr/include/qt/QtGui/qicon.h \
 		/usr/include/qt/QtCore/QSignalMapper \
-		/usr/include/qt/QtCore/qsignalmapper.h
+		/usr/include/qt/QtCore/qsignalmapper.h \
+		/usr/include/qt/QtWidgets/QLabel \
+		/usr/include/qt/QtWidgets/qlabel.h \
+		/usr/include/qt/QtWidgets/qframe.h \
+		json/json.h \
+		json/autolink.h \
+		json/config.h \
+		json/value.h \
+		json/forwards.h \
+		json/reader.h \
+		json/features.h \
+		json/writer.h \
+		/usr/include/qt/QtWidgets/QHBoxLayout \
+		/usr/include/qt/QtWidgets/QVBoxLayout \
+		core.h \
+		multiplayer.h \
+		asio.hpp \
+		asio/async_result.hpp \
+		asio/detail/config.hpp \
+		asio/handler_type.hpp \
+		asio/detail/push_options.hpp \
+		asio/detail/pop_options.hpp \
+		asio/basic_datagram_socket.hpp \
+		asio/basic_socket.hpp \
+		asio/basic_io_object.hpp \
+		asio/io_service.hpp \
+		asio/detail/noncopyable.hpp \
+		asio/detail/wrapped_handler.hpp \
+		asio/detail/bind_handler.hpp \
+		asio/detail/handler_alloc_helpers.hpp \
+		asio/detail/addressof.hpp \
+		asio/handler_alloc_hook.hpp \
+		asio/impl/handler_alloc_hook.ipp \
+		asio/detail/call_stack.hpp \
+		asio/detail/tss_ptr.hpp \
+		asio/detail/null_tss_ptr.hpp \
+		asio/detail/keyword_tss_ptr.hpp \
+		asio/detail/win_tss_ptr.hpp \
+		asio/detail/socket_types.hpp \
+		asio/detail/old_win_sdk_compat.hpp \
+		asio/detail/impl/win_tss_ptr.ipp \
+		asio/detail/throw_error.hpp \
+		asio/error_code.hpp \
+		asio/impl/error_code.ipp \
+		asio/detail/local_free_on_block_exit.hpp \
+		asio/detail/impl/throw_error.ipp \
+		asio/detail/throw_exception.hpp \
+		asio/system_error.hpp \
+		asio/detail/scoped_ptr.hpp \
+		asio/error.hpp \
+		asio/impl/error.ipp \
+		asio/detail/posix_tss_ptr.hpp \
+		asio/detail/impl/posix_tss_ptr.ipp \
+		asio/detail/win_iocp_thread_info.hpp \
+		asio/detail/thread_info_base.hpp \
+		asio/detail/task_io_service_thread_info.hpp \
+		asio/detail/event.hpp \
+		asio/detail/null_event.hpp \
+		asio/detail/win_event.hpp \
+		asio/detail/assert.hpp \
+		asio/detail/impl/win_event.ipp \
+		asio/detail/posix_event.hpp \
+		asio/detail/impl/posix_event.ipp \
+		asio/detail/std_event.hpp \
+		asio/detail/op_queue.hpp \
+		asio/detail/handler_cont_helpers.hpp \
+		asio/handler_continuation_hook.hpp \
+		asio/detail/handler_invoke_helpers.hpp \
+		asio/handler_invoke_hook.hpp \
+		asio/detail/winsock_init.hpp \
+		asio/detail/impl/winsock_init.ipp \
+		asio/detail/signal_init.hpp \
+		asio/impl/io_service.hpp \
+		asio/detail/handler_type_requirements.hpp \
+		asio/detail/service_registry.hpp \
+		asio/detail/mutex.hpp \
+		asio/detail/null_mutex.hpp \
+		asio/detail/scoped_lock.hpp \
+		asio/detail/win_mutex.hpp \
+		asio/detail/impl/win_mutex.ipp \
+		asio/detail/posix_mutex.hpp \
+		asio/detail/impl/posix_mutex.ipp \
+		asio/detail/std_mutex.hpp \
+		asio/detail/impl/service_registry.hpp \
+		asio/detail/impl/service_registry.ipp \
+		asio/detail/win_iocp_io_service.hpp \
+		asio/detail/limits.hpp \
+		asio/detail/thread.hpp \
+		asio/detail/null_thread.hpp \
+		asio/detail/wince_thread.hpp \
+		asio/detail/win_thread.hpp \
+		asio/detail/impl/win_thread.ipp \
+		asio/detail/posix_thread.hpp \
+		asio/detail/impl/posix_thread.ipp \
+		asio/detail/std_thread.hpp \
+		asio/detail/timer_queue_base.hpp \
+		asio/detail/operation.hpp \
+		asio/detail/win_iocp_operation.hpp \
+		asio/detail/handler_tracking.hpp \
+		asio/detail/cstdint.hpp \
+		asio/detail/static_mutex.hpp \
+		asio/detail/null_static_mutex.hpp \
+		asio/detail/win_static_mutex.hpp \
+		asio/detail/impl/win_static_mutex.ipp \
+		asio/detail/posix_static_mutex.hpp \
+		asio/detail/std_static_mutex.hpp \
+		asio/detail/impl/handler_tracking.ipp \
+		asio/time_traits.hpp \
+		asio/detail/chrono_time_traits.hpp \
+		asio/wait_traits.hpp \
+		asio/detail/task_io_service_operation.hpp \
+		asio/detail/timer_queue_set.hpp \
+		asio/detail/impl/timer_queue_set.ipp \
+		asio/detail/wait_op.hpp \
+		asio/detail/impl/win_iocp_io_service.hpp \
+		asio/detail/completion_handler.hpp \
+		asio/detail/fenced_block.hpp \
+		asio/detail/null_fenced_block.hpp \
+		asio/detail/macos_fenced_block.hpp \
+		asio/detail/solaris_fenced_block.hpp \
+		asio/detail/gcc_arm_fenced_block.hpp \
+		asio/detail/gcc_hppa_fenced_block.hpp \
+		asio/detail/gcc_x86_fenced_block.hpp \
+		asio/detail/gcc_sync_fenced_block.hpp \
+		asio/detail/win_fenced_block.hpp \
+		asio/detail/impl/win_iocp_io_service.ipp \
+		asio/detail/task_io_service.hpp \
+		asio/detail/atomic_count.hpp \
+		asio/detail/reactor_fwd.hpp \
+		asio/detail/impl/task_io_service.hpp \
+		asio/detail/impl/task_io_service.ipp \
+		asio/detail/reactor.hpp \
+		asio/detail/epoll_reactor.hpp \
+		asio/detail/object_pool.hpp \
+		asio/detail/reactor_op.hpp \
+		asio/detail/select_interrupter.hpp \
+		asio/detail/socket_select_interrupter.hpp \
+		asio/detail/impl/socket_select_interrupter.ipp \
+		asio/detail/socket_holder.hpp \
+		asio/detail/socket_ops.hpp \
+		asio/detail/shared_ptr.hpp \
+		asio/detail/weak_ptr.hpp \
+		asio/detail/impl/socket_ops.ipp \
+		asio/detail/eventfd_select_interrupter.hpp \
+		asio/detail/impl/eventfd_select_interrupter.ipp \
+		asio/detail/pipe_select_interrupter.hpp \
+		asio/detail/impl/pipe_select_interrupter.ipp \
+		asio/detail/impl/epoll_reactor.hpp \
+		asio/detail/impl/epoll_reactor.ipp \
+		asio/detail/kqueue_reactor.hpp \
+		asio/detail/impl/kqueue_reactor.hpp \
+		asio/detail/impl/kqueue_reactor.ipp \
+		asio/detail/dev_poll_reactor.hpp \
+		asio/detail/hash_map.hpp \
+		asio/detail/reactor_op_queue.hpp \
+		asio/detail/impl/dev_poll_reactor.hpp \
+		asio/detail/impl/dev_poll_reactor.ipp \
+		asio/detail/null_reactor.hpp \
+		asio/detail/select_reactor.hpp \
+		asio/detail/fd_set_adapter.hpp \
+		asio/detail/posix_fd_set_adapter.hpp \
+		asio/detail/win_fd_set_adapter.hpp \
+		asio/detail/impl/select_reactor.hpp \
+		asio/detail/impl/select_reactor.ipp \
+		asio/detail/signal_blocker.hpp \
+		asio/detail/null_signal_blocker.hpp \
+		asio/detail/posix_signal_blocker.hpp \
+		asio/impl/io_service.ipp \
+		asio/detail/type_traits.hpp \
+		asio/socket_base.hpp \
+		asio/detail/io_control.hpp \
+		asio/detail/socket_option.hpp \
+		asio/datagram_socket_service.hpp \
+		asio/detail/null_socket_service.hpp \
+		asio/buffer.hpp \
+		asio/detail/array_fwd.hpp \
+		asio/detail/function.hpp \
+		asio/detail/win_iocp_socket_service.hpp \
+		asio/detail/buffer_sequence_adapter.hpp \
+		asio/detail/impl/buffer_sequence_adapter.ipp \
+		asio/detail/reactive_socket_connect_op.hpp \
+		asio/detail/win_iocp_null_buffers_op.hpp \
+		asio/detail/win_iocp_socket_accept_op.hpp \
+		asio/detail/win_iocp_socket_service_base.hpp \
+		asio/detail/win_iocp_socket_send_op.hpp \
+		asio/detail/win_iocp_socket_recv_op.hpp \
+		asio/detail/win_iocp_socket_recvmsg_op.hpp \
+		asio/detail/impl/win_iocp_socket_service_base.ipp \
+		asio/detail/win_iocp_socket_recvfrom_op.hpp \
+		asio/detail/reactive_socket_service.hpp \
+		asio/detail/reactive_null_buffers_op.hpp \
+		asio/detail/reactive_socket_accept_op.hpp \
+		asio/detail/reactive_socket_recvfrom_op.hpp \
+		asio/detail/reactive_socket_sendto_op.hpp \
+		asio/detail/reactive_socket_service_base.hpp \
+		asio/detail/reactive_socket_recv_op.hpp \
+		asio/detail/reactive_socket_recvmsg_op.hpp \
+		asio/detail/reactive_socket_send_op.hpp \
+		asio/detail/impl/reactive_socket_service_base.ipp \
+		asio/basic_deadline_timer.hpp \
+		asio/deadline_timer_service.hpp \
+		asio/detail/deadline_timer_service.hpp \
+		asio/detail/timer_queue.hpp \
+		asio/detail/date_time_fwd.hpp \
+		asio/detail/timer_scheduler.hpp \
+		asio/detail/timer_scheduler_fwd.hpp \
+		asio/detail/winrt_timer_scheduler.hpp \
+		asio/detail/impl/winrt_timer_scheduler.hpp \
+		asio/detail/impl/winrt_timer_scheduler.ipp \
+		asio/detail/wait_handler.hpp \
+		asio/detail/timer_queue_ptime.hpp \
+		asio/detail/impl/timer_queue_ptime.ipp \
+		asio/basic_raw_socket.hpp \
+		asio/raw_socket_service.hpp \
+		asio/basic_seq_packet_socket.hpp \
+		asio/seq_packet_socket_service.hpp \
+		asio/basic_serial_port.hpp \
+		asio/serial_port_base.hpp \
+		asio/impl/serial_port_base.hpp \
+		asio/impl/serial_port_base.ipp \
+		asio/serial_port_service.hpp \
+		asio/detail/reactive_serial_port_service.hpp \
+		asio/detail/descriptor_ops.hpp \
+		asio/detail/impl/descriptor_ops.ipp \
+		asio/detail/reactive_descriptor_service.hpp \
+		asio/detail/descriptor_read_op.hpp \
+		asio/detail/descriptor_write_op.hpp \
+		asio/detail/impl/reactive_descriptor_service.ipp \
+		asio/detail/impl/reactive_serial_port_service.ipp \
+		asio/detail/win_iocp_serial_port_service.hpp \
+		asio/detail/win_iocp_handle_service.hpp \
+		asio/detail/win_iocp_handle_read_op.hpp \
+		asio/detail/win_iocp_handle_write_op.hpp \
+		asio/detail/impl/win_iocp_handle_service.ipp \
+		asio/detail/impl/win_iocp_serial_port_service.ipp \
+		asio/basic_signal_set.hpp \
+		asio/signal_set_service.hpp \
+		asio/detail/signal_set_service.hpp \
+		asio/detail/signal_handler.hpp \
+		asio/detail/signal_op.hpp \
+		asio/detail/impl/signal_set_service.ipp \
+		asio/basic_socket_acceptor.hpp \
+		asio/socket_acceptor_service.hpp \
+		asio/basic_socket_iostream.hpp \
+		asio/basic_socket_streambuf.hpp \
+		asio/detail/array.hpp \
+		asio/stream_socket_service.hpp \
+		asio/detail/winrt_ssocket_service.hpp \
+		asio/detail/winrt_socket_connect_op.hpp \
+		asio/detail/winrt_async_op.hpp \
+		asio/detail/winrt_ssocket_service_base.hpp \
+		asio/detail/winrt_async_manager.hpp \
+		asio/detail/winrt_socket_recv_op.hpp \
+		asio/detail/winrt_socket_send_op.hpp \
+		asio/detail/impl/winrt_ssocket_service_base.ipp \
+		asio/detail/winrt_utils.hpp \
+		asio/deadline_timer.hpp \
+		asio/steady_timer.hpp \
+		asio/basic_waitable_timer.hpp \
+		asio/waitable_timer_service.hpp \
+		asio/detail/variadic_templates.hpp \
+		asio/basic_stream_socket.hpp \
+		asio/basic_streambuf.hpp \
+		asio/basic_streambuf_fwd.hpp \
+		asio/buffered_read_stream_fwd.hpp \
+		asio/buffered_read_stream.hpp \
+		asio/detail/buffer_resize_guard.hpp \
+		asio/detail/buffered_stream_storage.hpp \
+		asio/impl/buffered_read_stream.hpp \
+		asio/buffered_stream_fwd.hpp \
+		asio/buffered_stream.hpp \
+		asio/buffered_write_stream.hpp \
+		asio/buffered_write_stream_fwd.hpp \
+		asio/completion_condition.hpp \
+		asio/write.hpp \
+		asio/impl/write.hpp \
+		asio/detail/base_from_completion_cond.hpp \
+		asio/detail/consuming_buffers.hpp \
+		asio/detail/dependent_type.hpp \
+		asio/impl/buffered_write_stream.hpp \
+		asio/buffers_iterator.hpp \
+		asio/connect.hpp \
+		asio/impl/connect.hpp \
+		asio/coroutine.hpp \
+		asio/generic/basic_endpoint.hpp \
+		asio/generic/detail/endpoint.hpp \
+		asio/generic/detail/impl/endpoint.ipp \
+		asio/generic/datagram_protocol.hpp \
+		asio/generic/raw_protocol.hpp \
+		asio/generic/seq_packet_protocol.hpp \
+		asio/generic/stream_protocol.hpp \
+		asio/ip/address.hpp \
+		asio/ip/address_v4.hpp \
+		asio/ip/impl/address_v4.hpp \
+		asio/ip/impl/address_v4.ipp \
+		asio/ip/address_v6.hpp \
+		asio/ip/impl/address_v6.hpp \
+		asio/ip/impl/address_v6.ipp \
+		asio/ip/impl/address.hpp \
+		asio/ip/impl/address.ipp \
+		asio/ip/basic_endpoint.hpp \
+		asio/ip/detail/endpoint.hpp \
+		asio/ip/detail/impl/endpoint.ipp \
+		asio/ip/impl/basic_endpoint.hpp \
+		asio/ip/basic_resolver.hpp \
+		asio/ip/basic_resolver_iterator.hpp \
+		asio/ip/basic_resolver_entry.hpp \
+		asio/ip/basic_resolver_query.hpp \
+		asio/ip/resolver_query_base.hpp \
+		asio/ip/resolver_service.hpp \
+		asio/detail/winrt_resolver_service.hpp \
+		asio/detail/winrt_resolve_op.hpp \
+		asio/detail/resolver_service.hpp \
+		asio/detail/resolve_endpoint_op.hpp \
+		asio/detail/resolve_op.hpp \
+		asio/detail/resolver_service_base.hpp \
+		asio/detail/impl/resolver_service_base.ipp \
+		asio/ip/host_name.hpp \
+		asio/ip/impl/host_name.ipp \
+		asio/ip/icmp.hpp \
+		asio/ip/multicast.hpp \
+		asio/ip/detail/socket_option.hpp \
+		asio/ip/tcp.hpp \
+		asio/ip/udp.hpp \
+		asio/ip/unicast.hpp \
+		asio/ip/v6_only.hpp \
+		asio/is_read_buffered.hpp \
+		asio/is_write_buffered.hpp \
+		asio/local/basic_endpoint.hpp \
+		asio/local/detail/endpoint.hpp \
+		asio/local/detail/impl/endpoint.ipp \
+		asio/local/connect_pair.hpp \
+		asio/local/datagram_protocol.hpp \
+		asio/local/stream_protocol.hpp \
+		asio/placeholders.hpp \
+		asio/posix/basic_descriptor.hpp \
+		asio/posix/descriptor_base.hpp \
+		asio/posix/basic_stream_descriptor.hpp \
+		asio/posix/stream_descriptor_service.hpp \
+		asio/posix/stream_descriptor.hpp \
+		asio/read.hpp \
+		asio/impl/read.hpp \
+		asio/read_at.hpp \
+		asio/impl/read_at.hpp \
+		asio/read_until.hpp \
+		asio/detail/regex_fwd.hpp \
+		asio/impl/read_until.hpp \
+		asio/serial_port.hpp \
+		asio/signal_set.hpp \
+		asio/strand.hpp \
+		asio/detail/strand_service.hpp \
+		asio/detail/impl/strand_service.hpp \
+		asio/detail/impl/strand_service.ipp \
+		asio/streambuf.hpp \
+		asio/thread.hpp \
+		asio/version.hpp \
+		asio/windows/basic_handle.hpp \
+		asio/windows/basic_object_handle.hpp \
+		asio/windows/object_handle_service.hpp \
+		asio/detail/win_object_handle_service.hpp \
+		asio/detail/impl/win_object_handle_service.ipp \
+		asio/windows/basic_random_access_handle.hpp \
+		asio/windows/random_access_handle_service.hpp \
+		asio/windows/basic_stream_handle.hpp \
+		asio/windows/stream_handle_service.hpp \
+		asio/windows/object_handle.hpp \
+		asio/windows/overlapped_ptr.hpp \
+		asio/detail/win_iocp_overlapped_ptr.hpp \
+		asio/detail/win_iocp_overlapped_op.hpp \
+		asio/windows/random_access_handle.hpp \
+		asio/windows/stream_handle.hpp \
+		asio/write_at.hpp \
+		asio/impl/write_at.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window.o window.cpp
+
+multiplayer.o: multiplayer.cpp asio.hpp \
+		asio/async_result.hpp \
+		asio/detail/config.hpp \
+		asio/handler_type.hpp \
+		asio/detail/push_options.hpp \
+		asio/detail/pop_options.hpp \
+		asio/basic_datagram_socket.hpp \
+		asio/basic_socket.hpp \
+		asio/basic_io_object.hpp \
+		asio/io_service.hpp \
+		asio/detail/noncopyable.hpp \
+		asio/detail/wrapped_handler.hpp \
+		asio/detail/bind_handler.hpp \
+		asio/detail/handler_alloc_helpers.hpp \
+		asio/detail/addressof.hpp \
+		asio/handler_alloc_hook.hpp \
+		asio/impl/handler_alloc_hook.ipp \
+		asio/detail/call_stack.hpp \
+		asio/detail/tss_ptr.hpp \
+		asio/detail/null_tss_ptr.hpp \
+		asio/detail/keyword_tss_ptr.hpp \
+		asio/detail/win_tss_ptr.hpp \
+		asio/detail/socket_types.hpp \
+		asio/detail/old_win_sdk_compat.hpp \
+		asio/detail/impl/win_tss_ptr.ipp \
+		asio/detail/throw_error.hpp \
+		asio/error_code.hpp \
+		asio/impl/error_code.ipp \
+		asio/detail/local_free_on_block_exit.hpp \
+		asio/detail/impl/throw_error.ipp \
+		asio/detail/throw_exception.hpp \
+		asio/system_error.hpp \
+		asio/detail/scoped_ptr.hpp \
+		asio/error.hpp \
+		asio/impl/error.ipp \
+		asio/detail/posix_tss_ptr.hpp \
+		asio/detail/impl/posix_tss_ptr.ipp \
+		asio/detail/win_iocp_thread_info.hpp \
+		asio/detail/thread_info_base.hpp \
+		asio/detail/task_io_service_thread_info.hpp \
+		asio/detail/event.hpp \
+		asio/detail/null_event.hpp \
+		asio/detail/win_event.hpp \
+		asio/detail/assert.hpp \
+		asio/detail/impl/win_event.ipp \
+		asio/detail/posix_event.hpp \
+		asio/detail/impl/posix_event.ipp \
+		asio/detail/std_event.hpp \
+		asio/detail/op_queue.hpp \
+		asio/detail/handler_cont_helpers.hpp \
+		asio/handler_continuation_hook.hpp \
+		asio/detail/handler_invoke_helpers.hpp \
+		asio/handler_invoke_hook.hpp \
+		asio/detail/winsock_init.hpp \
+		asio/detail/impl/winsock_init.ipp \
+		asio/detail/signal_init.hpp \
+		asio/impl/io_service.hpp \
+		asio/detail/handler_type_requirements.hpp \
+		asio/detail/service_registry.hpp \
+		asio/detail/mutex.hpp \
+		asio/detail/null_mutex.hpp \
+		asio/detail/scoped_lock.hpp \
+		asio/detail/win_mutex.hpp \
+		asio/detail/impl/win_mutex.ipp \
+		asio/detail/posix_mutex.hpp \
+		asio/detail/impl/posix_mutex.ipp \
+		asio/detail/std_mutex.hpp \
+		asio/detail/impl/service_registry.hpp \
+		asio/detail/impl/service_registry.ipp \
+		asio/detail/win_iocp_io_service.hpp \
+		asio/detail/limits.hpp \
+		asio/detail/thread.hpp \
+		asio/detail/null_thread.hpp \
+		asio/detail/wince_thread.hpp \
+		asio/detail/win_thread.hpp \
+		asio/detail/impl/win_thread.ipp \
+		asio/detail/posix_thread.hpp \
+		asio/detail/impl/posix_thread.ipp \
+		asio/detail/std_thread.hpp \
+		asio/detail/timer_queue_base.hpp \
+		asio/detail/operation.hpp \
+		asio/detail/win_iocp_operation.hpp \
+		asio/detail/handler_tracking.hpp \
+		asio/detail/cstdint.hpp \
+		asio/detail/static_mutex.hpp \
+		asio/detail/null_static_mutex.hpp \
+		asio/detail/win_static_mutex.hpp \
+		asio/detail/impl/win_static_mutex.ipp \
+		asio/detail/posix_static_mutex.hpp \
+		asio/detail/std_static_mutex.hpp \
+		asio/detail/impl/handler_tracking.ipp \
+		asio/time_traits.hpp \
+		asio/detail/chrono_time_traits.hpp \
+		asio/wait_traits.hpp \
+		asio/detail/task_io_service_operation.hpp \
+		asio/detail/timer_queue_set.hpp \
+		asio/detail/impl/timer_queue_set.ipp \
+		asio/detail/wait_op.hpp \
+		asio/detail/impl/win_iocp_io_service.hpp \
+		asio/detail/completion_handler.hpp \
+		asio/detail/fenced_block.hpp \
+		asio/detail/null_fenced_block.hpp \
+		asio/detail/macos_fenced_block.hpp \
+		asio/detail/solaris_fenced_block.hpp \
+		asio/detail/gcc_arm_fenced_block.hpp \
+		asio/detail/gcc_hppa_fenced_block.hpp \
+		asio/detail/gcc_x86_fenced_block.hpp \
+		asio/detail/gcc_sync_fenced_block.hpp \
+		asio/detail/win_fenced_block.hpp \
+		asio/detail/impl/win_iocp_io_service.ipp \
+		asio/detail/task_io_service.hpp \
+		asio/detail/atomic_count.hpp \
+		asio/detail/reactor_fwd.hpp \
+		asio/detail/impl/task_io_service.hpp \
+		asio/detail/impl/task_io_service.ipp \
+		asio/detail/reactor.hpp \
+		asio/detail/epoll_reactor.hpp \
+		asio/detail/object_pool.hpp \
+		asio/detail/reactor_op.hpp \
+		asio/detail/select_interrupter.hpp \
+		asio/detail/socket_select_interrupter.hpp \
+		asio/detail/impl/socket_select_interrupter.ipp \
+		asio/detail/socket_holder.hpp \
+		asio/detail/socket_ops.hpp \
+		asio/detail/shared_ptr.hpp \
+		asio/detail/weak_ptr.hpp \
+		asio/detail/impl/socket_ops.ipp \
+		asio/detail/eventfd_select_interrupter.hpp \
+		asio/detail/impl/eventfd_select_interrupter.ipp \
+		asio/detail/pipe_select_interrupter.hpp \
+		asio/detail/impl/pipe_select_interrupter.ipp \
+		asio/detail/impl/epoll_reactor.hpp \
+		asio/detail/impl/epoll_reactor.ipp \
+		asio/detail/kqueue_reactor.hpp \
+		asio/detail/impl/kqueue_reactor.hpp \
+		asio/detail/impl/kqueue_reactor.ipp \
+		asio/detail/dev_poll_reactor.hpp \
+		asio/detail/hash_map.hpp \
+		asio/detail/reactor_op_queue.hpp \
+		asio/detail/impl/dev_poll_reactor.hpp \
+		asio/detail/impl/dev_poll_reactor.ipp \
+		asio/detail/null_reactor.hpp \
+		asio/detail/select_reactor.hpp \
+		asio/detail/fd_set_adapter.hpp \
+		asio/detail/posix_fd_set_adapter.hpp \
+		asio/detail/win_fd_set_adapter.hpp \
+		asio/detail/impl/select_reactor.hpp \
+		asio/detail/impl/select_reactor.ipp \
+		asio/detail/signal_blocker.hpp \
+		asio/detail/null_signal_blocker.hpp \
+		asio/detail/posix_signal_blocker.hpp \
+		asio/impl/io_service.ipp \
+		asio/detail/type_traits.hpp \
+		asio/socket_base.hpp \
+		asio/detail/io_control.hpp \
+		asio/detail/socket_option.hpp \
+		asio/datagram_socket_service.hpp \
+		asio/detail/null_socket_service.hpp \
+		asio/buffer.hpp \
+		asio/detail/array_fwd.hpp \
+		asio/detail/function.hpp \
+		asio/detail/win_iocp_socket_service.hpp \
+		asio/detail/buffer_sequence_adapter.hpp \
+		asio/detail/impl/buffer_sequence_adapter.ipp \
+		asio/detail/reactive_socket_connect_op.hpp \
+		asio/detail/win_iocp_null_buffers_op.hpp \
+		asio/detail/win_iocp_socket_accept_op.hpp \
+		asio/detail/win_iocp_socket_service_base.hpp \
+		asio/detail/win_iocp_socket_send_op.hpp \
+		asio/detail/win_iocp_socket_recv_op.hpp \
+		asio/detail/win_iocp_socket_recvmsg_op.hpp \
+		asio/detail/impl/win_iocp_socket_service_base.ipp \
+		asio/detail/win_iocp_socket_recvfrom_op.hpp \
+		asio/detail/reactive_socket_service.hpp \
+		asio/detail/reactive_null_buffers_op.hpp \
+		asio/detail/reactive_socket_accept_op.hpp \
+		asio/detail/reactive_socket_recvfrom_op.hpp \
+		asio/detail/reactive_socket_sendto_op.hpp \
+		asio/detail/reactive_socket_service_base.hpp \
+		asio/detail/reactive_socket_recv_op.hpp \
+		asio/detail/reactive_socket_recvmsg_op.hpp \
+		asio/detail/reactive_socket_send_op.hpp \
+		asio/detail/impl/reactive_socket_service_base.ipp \
+		asio/basic_deadline_timer.hpp \
+		asio/deadline_timer_service.hpp \
+		asio/detail/deadline_timer_service.hpp \
+		asio/detail/timer_queue.hpp \
+		asio/detail/date_time_fwd.hpp \
+		asio/detail/timer_scheduler.hpp \
+		asio/detail/timer_scheduler_fwd.hpp \
+		asio/detail/winrt_timer_scheduler.hpp \
+		asio/detail/impl/winrt_timer_scheduler.hpp \
+		asio/detail/impl/winrt_timer_scheduler.ipp \
+		asio/detail/wait_handler.hpp \
+		asio/detail/timer_queue_ptime.hpp \
+		asio/detail/impl/timer_queue_ptime.ipp \
+		asio/basic_raw_socket.hpp \
+		asio/raw_socket_service.hpp \
+		asio/basic_seq_packet_socket.hpp \
+		asio/seq_packet_socket_service.hpp \
+		asio/basic_serial_port.hpp \
+		asio/serial_port_base.hpp \
+		asio/impl/serial_port_base.hpp \
+		asio/impl/serial_port_base.ipp \
+		asio/serial_port_service.hpp \
+		asio/detail/reactive_serial_port_service.hpp \
+		asio/detail/descriptor_ops.hpp \
+		asio/detail/impl/descriptor_ops.ipp \
+		asio/detail/reactive_descriptor_service.hpp \
+		asio/detail/descriptor_read_op.hpp \
+		asio/detail/descriptor_write_op.hpp \
+		asio/detail/impl/reactive_descriptor_service.ipp \
+		asio/detail/impl/reactive_serial_port_service.ipp \
+		asio/detail/win_iocp_serial_port_service.hpp \
+		asio/detail/win_iocp_handle_service.hpp \
+		asio/detail/win_iocp_handle_read_op.hpp \
+		asio/detail/win_iocp_handle_write_op.hpp \
+		asio/detail/impl/win_iocp_handle_service.ipp \
+		asio/detail/impl/win_iocp_serial_port_service.ipp \
+		asio/basic_signal_set.hpp \
+		asio/signal_set_service.hpp \
+		asio/detail/signal_set_service.hpp \
+		asio/detail/signal_handler.hpp \
+		asio/detail/signal_op.hpp \
+		asio/detail/impl/signal_set_service.ipp \
+		asio/basic_socket_acceptor.hpp \
+		asio/socket_acceptor_service.hpp \
+		asio/basic_socket_iostream.hpp \
+		asio/basic_socket_streambuf.hpp \
+		asio/detail/array.hpp \
+		asio/stream_socket_service.hpp \
+		asio/detail/winrt_ssocket_service.hpp \
+		asio/detail/winrt_socket_connect_op.hpp \
+		asio/detail/winrt_async_op.hpp \
+		asio/detail/winrt_ssocket_service_base.hpp \
+		asio/detail/winrt_async_manager.hpp \
+		asio/detail/winrt_socket_recv_op.hpp \
+		asio/detail/winrt_socket_send_op.hpp \
+		asio/detail/impl/winrt_ssocket_service_base.ipp \
+		asio/detail/winrt_utils.hpp \
+		asio/deadline_timer.hpp \
+		asio/steady_timer.hpp \
+		asio/basic_waitable_timer.hpp \
+		asio/waitable_timer_service.hpp \
+		asio/detail/variadic_templates.hpp \
+		asio/basic_stream_socket.hpp \
+		asio/basic_streambuf.hpp \
+		asio/basic_streambuf_fwd.hpp \
+		asio/buffered_read_stream_fwd.hpp \
+		asio/buffered_read_stream.hpp \
+		asio/detail/buffer_resize_guard.hpp \
+		asio/detail/buffered_stream_storage.hpp \
+		asio/impl/buffered_read_stream.hpp \
+		asio/buffered_stream_fwd.hpp \
+		asio/buffered_stream.hpp \
+		asio/buffered_write_stream.hpp \
+		asio/buffered_write_stream_fwd.hpp \
+		asio/completion_condition.hpp \
+		asio/write.hpp \
+		asio/impl/write.hpp \
+		asio/detail/base_from_completion_cond.hpp \
+		asio/detail/consuming_buffers.hpp \
+		asio/detail/dependent_type.hpp \
+		asio/impl/buffered_write_stream.hpp \
+		asio/buffers_iterator.hpp \
+		asio/connect.hpp \
+		asio/impl/connect.hpp \
+		asio/coroutine.hpp \
+		asio/generic/basic_endpoint.hpp \
+		asio/generic/detail/endpoint.hpp \
+		asio/generic/detail/impl/endpoint.ipp \
+		asio/generic/datagram_protocol.hpp \
+		asio/generic/raw_protocol.hpp \
+		asio/generic/seq_packet_protocol.hpp \
+		asio/generic/stream_protocol.hpp \
+		asio/ip/address.hpp \
+		asio/ip/address_v4.hpp \
+		asio/ip/impl/address_v4.hpp \
+		asio/ip/impl/address_v4.ipp \
+		asio/ip/address_v6.hpp \
+		asio/ip/impl/address_v6.hpp \
+		asio/ip/impl/address_v6.ipp \
+		asio/ip/impl/address.hpp \
+		asio/ip/impl/address.ipp \
+		asio/ip/basic_endpoint.hpp \
+		asio/ip/detail/endpoint.hpp \
+		asio/ip/detail/impl/endpoint.ipp \
+		asio/ip/impl/basic_endpoint.hpp \
+		asio/ip/basic_resolver.hpp \
+		asio/ip/basic_resolver_iterator.hpp \
+		asio/ip/basic_resolver_entry.hpp \
+		asio/ip/basic_resolver_query.hpp \
+		asio/ip/resolver_query_base.hpp \
+		asio/ip/resolver_service.hpp \
+		asio/detail/winrt_resolver_service.hpp \
+		asio/detail/winrt_resolve_op.hpp \
+		asio/detail/resolver_service.hpp \
+		asio/detail/resolve_endpoint_op.hpp \
+		asio/detail/resolve_op.hpp \
+		asio/detail/resolver_service_base.hpp \
+		asio/detail/impl/resolver_service_base.ipp \
+		asio/ip/host_name.hpp \
+		asio/ip/impl/host_name.ipp \
+		asio/ip/icmp.hpp \
+		asio/ip/multicast.hpp \
+		asio/ip/detail/socket_option.hpp \
+		asio/ip/tcp.hpp \
+		asio/ip/udp.hpp \
+		asio/ip/unicast.hpp \
+		asio/ip/v6_only.hpp \
+		asio/is_read_buffered.hpp \
+		asio/is_write_buffered.hpp \
+		asio/local/basic_endpoint.hpp \
+		asio/local/detail/endpoint.hpp \
+		asio/local/detail/impl/endpoint.ipp \
+		asio/local/connect_pair.hpp \
+		asio/local/datagram_protocol.hpp \
+		asio/local/stream_protocol.hpp \
+		asio/placeholders.hpp \
+		asio/posix/basic_descriptor.hpp \
+		asio/posix/descriptor_base.hpp \
+		asio/posix/basic_stream_descriptor.hpp \
+		asio/posix/stream_descriptor_service.hpp \
+		asio/posix/stream_descriptor.hpp \
+		asio/read.hpp \
+		asio/impl/read.hpp \
+		asio/read_at.hpp \
+		asio/impl/read_at.hpp \
+		asio/read_until.hpp \
+		asio/detail/regex_fwd.hpp \
+		asio/impl/read_until.hpp \
+		asio/serial_port.hpp \
+		asio/signal_set.hpp \
+		asio/strand.hpp \
+		asio/detail/strand_service.hpp \
+		asio/detail/impl/strand_service.hpp \
+		asio/detail/impl/strand_service.ipp \
+		asio/streambuf.hpp \
+		asio/thread.hpp \
+		asio/version.hpp \
+		asio/windows/basic_handle.hpp \
+		asio/windows/basic_object_handle.hpp \
+		asio/windows/object_handle_service.hpp \
+		asio/detail/win_object_handle_service.hpp \
+		asio/detail/impl/win_object_handle_service.ipp \
+		asio/windows/basic_random_access_handle.hpp \
+		asio/windows/random_access_handle_service.hpp \
+		asio/windows/basic_stream_handle.hpp \
+		asio/windows/stream_handle_service.hpp \
+		asio/windows/object_handle.hpp \
+		asio/windows/overlapped_ptr.hpp \
+		asio/detail/win_iocp_overlapped_ptr.hpp \
+		asio/detail/win_iocp_overlapped_op.hpp \
+		asio/windows/random_access_handle.hpp \
+		asio/windows/stream_handle.hpp \
+		asio/write_at.hpp \
+		asio/impl/write_at.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o multiplayer.o multiplayer.cpp
 
 moc_window.o: moc_window.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_window.o moc_window.cpp

@@ -13,6 +13,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "core.h"
+#include <queue>
 
 using namespace std;
 
@@ -47,9 +48,13 @@ Window::Window(QWidget *parent) : QWidget(parent)
   QHBoxLayout *topStatus = new QHBoxLayout();
   status = new QLabel("Status");
   QPushButton *connectToPlayer = new QPushButton("Connect");
+  QPushButton *startServer = new QPushButton("Start Server");
   QPushButton *newGame = new QPushButton("New Game");
   connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
+  connect(startServer, SIGNAL(clicked()), this, SLOT(startServer()));
+  connect(connectToPlayer, SIGNAL(clicked()), this, SLOT(connectToPlayer()));
   topStatus->addWidget(status);
+  topStatus->addWidget(startServer);
   topStatus->addWidget(connectToPlayer);
   topStatus->addWidget(newGame);
 
@@ -57,6 +62,15 @@ Window::Window(QWidget *parent) : QWidget(parent)
   vbox->addLayout(grid);
 
   updateBoard();
+}
+
+void Window::connectToPlayer() {
+  network->startPlayerConnection();
+}
+
+void Window::startServer() {
+  network->moves.push("start");
+  network->startServerConnection();
 }
 
 void Window::resetBoard() {
@@ -138,7 +152,11 @@ void Window::ButtonClicked(const QString text) {
         new_position = position;
         Core *core = new Core();
         string success = core->query_next_move(original_position, new_position);
-        if (success == "bw") {
+        if (success == "success") {
+          string message = player + ":" + original_position + ":" + new_position + "&";
+          network->moves.push(message);
+          cout << network->moves.back() << endl;
+        } else if (success == "bw") {
           status->setText("Black wins!");
           freeze_window();
          

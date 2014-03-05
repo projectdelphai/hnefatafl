@@ -9,6 +9,8 @@
 #include <QLabel>
 
 #include "json/json.h"
+#include "multiplayer.h"
+#include <queue>
 
 #include <iostream>
 
@@ -25,6 +27,8 @@ class Window : public QWidget
   private slots: 
     void ButtonClicked(const QString text);
     void resetBoard();
+    void startServer();
+    void connectToPlayer();
 
   private:
     QGridLayout *grid;
@@ -34,6 +38,7 @@ class Window : public QWidget
     string player;
     bool isPieceChosen = false;
     QLabel *status;
+    MultiPlayer *network = new MultiPlayer();
 
     void updateBoard();
     void freeze_window();
