@@ -65,12 +65,12 @@ Window::Window(QWidget *parent) : QWidget(parent)
 }
 
 void Window::connectToPlayer() {
-  network->startPlayerConnection();
+  network->startConsumer();
 }
 
 void Window::startServer() {
-  network->moves.push("start");
-  network->startServerConnection();
+  network->startProducer();
+  network->add("starting");
 }
 
 void Window::resetBoard() {
@@ -154,8 +154,7 @@ void Window::ButtonClicked(const QString text) {
         string success = core->query_next_move(original_position, new_position);
         if (success == "success") {
           string message = player + ":" + original_position + ":" + new_position + "&";
-          network->moves.push(message);
-          cout << network->moves.back() << endl;
+          network->add(message);
         } else if (success == "bw") {
           status->setText("Black wins!");
           freeze_window();

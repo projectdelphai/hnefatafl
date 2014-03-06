@@ -3,6 +3,8 @@
 
 #include "asio.hpp"
 #include <queue>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
@@ -10,10 +12,12 @@ class MultiPlayer
 {
   public:
     queue<string> moves;
-    void setUpServer();
-    void connectToPlayer();
-    void startServerConnection();
-    void startPlayerConnection();
+    mutex mtx;
+    void add(string message);
+    void Producer();
+    void Consumer();
+    void startProducer();
+    void startConsumer();
 };
 
 #endif
