@@ -19,7 +19,11 @@ void MultiPlayer::startConsumer() {
 }
 
 void MultiPlayer::add(string message) {
+  mtx.lock();
+  cout << "adding move" << endl;
   moves.push(message);
+  cout << moves.back() << endl;
+  mtx.unlock();
 }
 
 void MultiPlayer::Producer() {
@@ -31,13 +35,18 @@ void MultiPlayer::Producer() {
     std::cout << "Starting to listen on port 1300" << std::endl;
     for (;;) {
       if (!moves.empty()) {
-        cout << "2" << endl;
+        cout << "listening" << endl;
         tcp::socket socket(io_service);
         acceptor.accept(socket);
-        string message = moves.back();
+        mtx.lock();
+        string message = moves.front();
         moves.pop();
+        mtx.unlock();
         asio::error_code ignored_error;
         asio::write(socket, asio::buffer(message), ignored_error);
+        cout << "finished" << endl;
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
       }
     }
   } catch (std::exception& e) {
@@ -63,15 +72,15 @@ void MultiPlayer::Consumer() {
         std::array<char, 8> buf;
         asio::error_code error;
         
-        size_t len = socket.read_some(asio::buffer(buf), error);
+        socket.read_some(asio::buffer(buf), error);
         
         if (error == asio::error::eof) {
           break;
         } else if (error) {
           throw asio::system_error(error);
         } else {
-          cout.write(buf.data(), len);
-          cout << endl;
+          string message = buf.data();
+          parseIncoming(rawMessage);
         }
       }
     } catch (std::exception& e) {
@@ -79,4 +88,8 @@ void MultiPlayer::Consumer() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
   }
+}
+
+void parseIncoming(string rawMessage) {
+  cout << rawMessage << endl;
 }
