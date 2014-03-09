@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "core.h"
 #include <queue>
+#include <thread>
 
 using namespace std;
 
@@ -24,11 +25,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
   grid->setSpacing(0); 
 
   int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
-  std::ifstream ifs("pieces");
-  std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
-      (std::istreambuf_iterator<char>() ) );
-  Json::Reader reader;
-  reader.parse(json_raw, root, false);
+  Json::Value root = getRoot(); 
   signalMapper = new QSignalMapper(this);
 
   for (int i=0; i<11; i++) {
@@ -70,13 +67,18 @@ void Window::connectToPlayer() {
 
 void Window::startServer() {
   network->startProducer();
-  network->add("starting");
 }
 
 void Window::resetBoard() {
-  std::ifstream src("pieces.bk", std::ios::binary);
-  std::ofstream dst("pieces", std::ios::binary);
-  dst << src.rdbuf();
+  char buf[BUFSIZ];
+  size_t size;
+  FILE* source = fopen("pieces.bk", "rb");
+  FILE* dest = fopen("pieces", "wb");
+  while ((size = fread(buf, 1, BUFSIZ, source))) {
+    fwrite(buf, 1, size, dest);
+  }
+  fclose(source);
+  fclose(dest);
 
   for (int i=0; i<11; i++) {
     for (int j=0; j<11; j++) {
@@ -88,19 +90,31 @@ void Window::resetBoard() {
       btn->setPalette(pal);
     }
   }
-  
-  disconnect(signalMapper, 0, this, 0);
-  //updateBoard();
+
+  updateBoard();
 }
 
-void Window::updateBoard() {
-  int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
-
+Json::Value Window::getRoot() {
+  Json::Value root = new Json::Value();
   std::ifstream ifs("pieces");
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Reader reader;
-  reader.parse(json_raw, root, false);
+  bool parseSuccess = reader.parse(json_raw, root, false);
+  if (parseSuccess) {
+    return root;
+  } else {
+    cout << "Error in parsing: " << endl;
+    cout << reader.getFormatedErrorMessages() << endl;
+  }
+  return root;
+}
+
+void Window::updateBoard() {
+  disconnect(signalMapper, 0, this, 0);
+  int horizValues[] = { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+
+  Json::Value root = getRoot(); 
 
   for( Json::ValueIterator itr = root.begin() ; itr != root.end() ; itr++ ) {
     if (itr.key().asString() == "player") {
@@ -130,14 +144,19 @@ void Window::updateBoard() {
   connect(signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(ButtonClicked(const QString &)));
 }
 
-void Window::freeze_window() {
+void Window::freeze_window(bool enabled) {
   for (int j=0; j<grid->count(); j++) {
+    if (enabled) {
       grid->itemAt(j)->widget()->setEnabled(false);
+    } else {
+      grid->itemAt(j)->widget()->setEnabled(true);
+    }
   }
 }
 
 void Window::ButtonClicked(const QString text) {
   string position = text.toUtf8().constData();
+  Json::Value root = getRoot(); 
   string piece = root[position].asString();
   string color;
   if (piece.empty() == false && piece != "none") {
@@ -157,17 +176,15 @@ void Window::ButtonClicked(const QString text) {
           network->add(message);
         } else if (success == "bw") {
           status->setText("Black wins!");
-          freeze_window();
-         
+          freeze_window(true);
         } else if (success == "ww") {
           status->setText("White wins!");
-          freeze_window();
+          freeze_window(true);
         } else if (success == "invalid") {
           QString error = QString::fromStdString(core->status);
           status->setText(error);
         }
         isPieceChosen = false;
-        disconnect(signalMapper, 0, this, 0);
         updateBoard();
       }
     } else {

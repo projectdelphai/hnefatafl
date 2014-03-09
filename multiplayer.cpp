@@ -4,6 +4,7 @@
 #include <thread>
 #include <queue>
 #include "asio.hpp"
+#include "core.h"
 
 using asio::ip::tcp;
 using namespace std;
@@ -20,9 +21,7 @@ void MultiPlayer::startConsumer() {
 
 void MultiPlayer::add(string message) {
   mtx.lock();
-  cout << "adding move" << endl;
   moves.push(message);
-  cout << moves.back() << endl;
   mtx.unlock();
 }
 
@@ -80,7 +79,7 @@ void MultiPlayer::Consumer() {
           throw asio::system_error(error);
         } else {
           string message = buf.data();
-          parseIncoming(rawMessage);
+          parseIncoming(message);
         }
       }
     } catch (std::exception& e) {
@@ -90,6 +89,21 @@ void MultiPlayer::Consumer() {
   }
 }
 
-void parseIncoming(string rawMessage) {
-  cout << rawMessage << endl;
+void MultiPlayer::parseIncoming(string rawMessage) {
+  if (rawMessage.back() == '&') {
+    rawMessage.pop_back();
+    if (rawMessage.back() == '&') {
+      return;
+    }
+  } else {
+    cout << rawMessage << endl;
+    return;
+  }
+  size_t found = rawMessage.find(":");
+  size_t found2 = rawMessage.find_last_of(":");
+  string player = rawMessage.substr(0, found);
+  string original_position = rawMessage.substr(found+1, found2-2); 
+  string new_position = rawMessage.substr(found2+1, -1); 
+  Core *core = new Core();
+  core->query_next_move(original_position, new_position);
 }

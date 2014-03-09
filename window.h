@@ -22,7 +22,6 @@ class Window : public QWidget
 
   public:
     Window(QWidget *parent = 0);
-    Json::Value root;
    
   private slots: 
     void ButtonClicked(const QString text);
@@ -41,7 +40,8 @@ class Window : public QWidget
     MultiPlayer *network = new MultiPlayer();
 
     void updateBoard();
-    void freeze_window();
+    void freeze_window(bool enabled);
+    Json::Value getRoot();
 };
 
 #endif
