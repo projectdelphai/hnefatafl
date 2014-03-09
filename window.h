@@ -28,6 +28,7 @@ class Window : public QWidget
     void resetBoard();
     void startServer();
     void connectToPlayer();
+    void update();
 
   private:
     QGridLayout *grid;
@@ -37,9 +38,9 @@ class Window : public QWidget
     string player;
     bool isPieceChosen = false;
     QLabel *status;
+    void updateBoard();
     MultiPlayer *network = new MultiPlayer();
 
-    void updateBoard();
     void freeze_window(bool enabled);
     Json::Value getRoot();
 };

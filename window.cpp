@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QLabel>
+#include <QTimer>
 
 #include <iostream>
 #include <fstream>
@@ -59,6 +60,19 @@ Window::Window(QWidget *parent) : QWidget(parent)
   vbox->addLayout(grid);
 
   updateBoard();
+
+  QTimer *timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+  timer->start(1000);
+  
+}
+
+void Window::update() {
+  if (network->update) {
+    cout << "2" << endl;
+    updateBoard();
+    network->update = false;
+  }
 }
 
 void Window::connectToPlayer() {

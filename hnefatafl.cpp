@@ -24,6 +24,6 @@ int main(int argc, char* argv[]) {
   window.move(x,y);
   window.setWindowTitle("Hnefatafl");
   window.show();
-
+  
   return app.exec();
 }

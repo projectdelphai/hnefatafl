@@ -19,6 +19,7 @@ class MultiPlayer
     void startProducer();
     void startConsumer();
     void parseIncoming(string message);
+    bool update;
 };
 
 #endif

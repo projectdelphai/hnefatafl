@@ -104,6 +104,8 @@ void MultiPlayer::parseIncoming(string rawMessage) {
   string player = rawMessage.substr(0, found);
   string original_position = rawMessage.substr(found+1, found2-2); 
   string new_position = rawMessage.substr(found2+1, -1); 
+  cout << rawMessage << endl;
   Core *core = new Core();
   core->query_next_move(original_position, new_position);
+  update = true;
 }
