@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QSignalMapper>
 #include <QLabel>
+#include <QLineEdit>
 
 #include "json/json.h"
 #include "multiplayer.h"
@@ -27,8 +28,9 @@ class Window : public QWidget
     void ButtonClicked(const QString text);
     void resetBoard();
     void startServer();
-    void connectToPlayer();
     void update();
+    void makeClientWhite();
+    void makeClientBlack();
 
   private:
     QGridLayout *grid;
@@ -36,13 +38,17 @@ class Window : public QWidget
     string original_position;
     string new_position;
     string player;
+    string clientPlayer;
     bool isPieceChosen = false;
     QLabel *status;
     void updateBoard();
     MultiPlayer *network = new MultiPlayer();
-
+    QPushButton *black;
+    QPushButton *white;
+    bool clientPlayerChosen = false;
     void freeze_window(bool enabled);
     Json::Value getRoot();
+    QLineEdit *address;
 };
 
 #endif

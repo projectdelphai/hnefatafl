@@ -9,6 +9,7 @@
 #include <QSignalMapper>
 #include <QLabel>
 #include <QTimer>
+#include <QLineEdit>
 
 #include <iostream>
 #include <fstream>
@@ -45,15 +46,20 @@ Window::Window(QWidget *parent) : QWidget(parent)
 
   QHBoxLayout *topStatus = new QHBoxLayout();
   status = new QLabel("Status");
-  QPushButton *connectToPlayer = new QPushButton("Connect");
-  QPushButton *startServer = new QPushButton("Start Server");
+  black = new QPushButton("Black");
+  white = new QPushButton("White");
+  address = new QLineEdit("127.0.0.1:1300");
+  QPushButton *startServer = new QPushButton("Connect");
   QPushButton *newGame = new QPushButton("New Game");
-  connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
+  connect(black, SIGNAL(clicked()), this, SLOT(makeClientBlack()));
+  connect(white, SIGNAL(clicked()), this, SLOT(makeClientWhite()));
   connect(startServer, SIGNAL(clicked()), this, SLOT(startServer()));
-  connect(connectToPlayer, SIGNAL(clicked()), this, SLOT(connectToPlayer()));
+  connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
   topStatus->addWidget(status);
+  topStatus->addWidget(black);
+  topStatus->addWidget(white);
+  topStatus->addWidget(address);
   topStatus->addWidget(startServer);
-  topStatus->addWidget(connectToPlayer);
   topStatus->addWidget(newGame);
 
   vbox->addLayout(topStatus);
@@ -64,23 +70,54 @@ Window::Window(QWidget *parent) : QWidget(parent)
   QTimer *timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(1000);
-  
+}
+
+void Window::makeClientBlack() {
+  clientPlayer = "b";
+  black->setDisabled(true);
+  white->setDisabled(true);
+  clientPlayerChosen = true;
+}
+
+void Window::makeClientWhite() {
+  clientPlayer = "w";
+  black->setDisabled(true);
+  white->setDisabled(true);
+  clientPlayerChosen = true;
 }
 
 void Window::update() {
   if (network->update) {
-    cout << "2" << endl;
     updateBoard();
     network->update = false;
+    clientPlayer = network->clientPlayer;
+    Json::Value root = getRoot();
+    if (root["player"].asString() == player) {
+      cout << "Your turn!" << endl;
+      freeze_window(false);
+    } else {
+      cout << "Not your turn!" << endl;
+      freeze_window(true);
+    }
   }
 }
 
-void Window::connectToPlayer() {
-  network->startConsumer();
-}
-
 void Window::startServer() {
-  network->startProducer();
+  if (clientPlayerChosen) {
+    string rawAddress = (address->text()).toUtf8().constData();
+    string firstAddress = rawAddress.substr(0, rawAddress.find(","));
+    string secondAddress = rawAddress.substr(rawAddress.find(",")+1, -1);
+    size_t found = firstAddress.find(":");
+    string port1 = firstAddress.substr(found+1, -1);
+    found = secondAddress.find(":");
+    string ip = secondAddress.substr(0, found);
+    string port2 = secondAddress.substr(found+1, -1);
+    cout << ip << endl;
+    cout << port1 << endl;
+    cout << port2 << endl;
+    network->startConnection(ip, port1, port2);
+    network->add("!playe="+clientPlayer);
+  }
 }
 
 void Window::resetBoard() {
