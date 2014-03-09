@@ -73,6 +73,12 @@ vector<string> Core::check_for_capture(string new_position) {
       vector<string> adjacent_pieces_2 = get_adjacent_pieces(root, position);
       int allies = 0;
       for (string position : adjacent_pieces_2) {
+        if (ally == 'k' && root[position].asString().at(0) == 'w') {
+          allies = allies + 1;
+        }
+        if (ally == 'w' && root[position].asString().at(0) == 'k') {
+          allies = allies + 1;
+        }
         if (root[position].asString().at(0) == ally) {
           allies = allies + 1;
         }
