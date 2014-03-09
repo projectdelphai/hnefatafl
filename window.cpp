@@ -92,12 +92,11 @@ void Window::update() {
     network->update = false;
     clientPlayer = network->clientPlayer;
     Json::Value root = getRoot();
+    cout << player << endl;
+    cout << root["player"].asString();
     if (root["player"].asString() == player) {
       cout << "Your turn!" << endl;
       freeze_window(false);
-    } else {
-      cout << "Not your turn!" << endl;
-      freeze_window(true);
     }
   }
 }
@@ -222,6 +221,7 @@ void Window::ButtonClicked(const QString text) {
         new_position = position;
         Core *core = new Core();
         string success = core->query_next_move(original_position, new_position);
+        freeze_window(true);
         if (success == "success") {
           string message = player + ":" + original_position + ":" + new_position + "&";
           network->add(message);
