@@ -48,7 +48,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
   status = new QLabel("Status");
   black = new QPushButton("Black");
   white = new QPushButton("White");
-  address = new QLineEdit("1400,127.0.0.1:1300");
+  address = new QLineEdit("1300,127.0.0.1:1400");
   QPushButton *startServer = new QPushButton("Connect");
   QPushButton *newGame = new QPushButton("New Game");
   connect(black, SIGNAL(clicked()), this, SLOT(makeClientBlack()));
@@ -92,10 +92,7 @@ void Window::update() {
     network->update = false;
     clientPlayer = network->clientPlayer;
     Json::Value root = getRoot();
-    cout << player << endl;
-    cout << root["player"].asString();
     if (root["player"].asString() == player) {
-      cout << "Your turn!" << endl;
       freeze_window(false);
     }
   }
@@ -111,9 +108,6 @@ void Window::startServer() {
     found = secondAddress.find(":");
     string ip = secondAddress.substr(0, found);
     string port2 = secondAddress.substr(found+1, -1);
-    cout << ip << endl;
-    cout << port1 << endl;
-    cout << port2 << endl;
     network->startConnection(ip, port1, port2);
     network->add("!playe="+clientPlayer);
     Json::Value root = getRoot();

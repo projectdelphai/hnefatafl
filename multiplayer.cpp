@@ -12,7 +12,6 @@ using namespace std;
 void MultiPlayer::startConnection(string ip, string port1, string port2) {
   std::thread server(&MultiPlayer::Producer, this, port1);
   server.detach();
-  cout << "Started server" << endl;
   std::thread reader(&MultiPlayer::Consumer, this, ip, port2);
   reader.detach();
 }
@@ -87,13 +86,14 @@ void MultiPlayer::parseIncoming(string rawMessage) {
   if (rawMessage.back() == '&') {
     rawMessage.pop_back();
     if (rawMessage.back() == '&') {
+      cout << rawMessage << endl;
       return;
+    } else {
     }
   } else {
     if (rawMessage.front() == '!') {
       clientPlayer = rawMessage.back();
     }
-    cout << rawMessage << endl;
     return;
   }
   size_t found = rawMessage.find(":");
@@ -101,7 +101,6 @@ void MultiPlayer::parseIncoming(string rawMessage) {
   string player = rawMessage.substr(0, found);
   string original_position = rawMessage.substr(found+1, found2-2); 
   string new_position = rawMessage.substr(found2+1, -1); 
-  cout << rawMessage << endl;
   Core *core = new Core();
   core->query_next_move(original_position, new_position);
   update = true;
