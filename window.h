@@ -11,7 +11,7 @@
 
 #include "json/json.h"
 #include "multiplayer.h"
-#include <queue>
+#include <deque>
 
 #include <iostream>
 

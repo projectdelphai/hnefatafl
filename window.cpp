@@ -15,7 +15,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "core.h"
-#include <queue>
+#include <deque>
 #include <thread>
 
 using namespace std;
@@ -109,7 +109,7 @@ void Window::startServer() {
     string ip = secondAddress.substr(0, found);
     string port2 = secondAddress.substr(found+1, -1);
     network->startConnection(ip, port1, port2);
-    network->add("!playe="+clientPlayer);
+    network->add("!player="+clientPlayer);
     Json::Value root = getRoot();
     if (clientPlayer != root["player"].asString()) {
       freeze_window(true);

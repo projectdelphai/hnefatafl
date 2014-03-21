@@ -2,7 +2,7 @@
 #define MULTIPLAYER_H
 
 #include "asio.hpp"
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <condition_variable>
 
@@ -11,7 +11,7 @@ using namespace std;
 class MultiPlayer
 {
   public:
-    queue<string> moves;
+    deque<string> moves;
     mutex mtx;
     void add(string message);
     void Producer(string address);
@@ -20,6 +20,8 @@ class MultiPlayer
     void parseIncoming(string message);
     bool update;
     string clientPlayer;
+    bool verified;
+    string currentMessage;
 };
 
 #endif

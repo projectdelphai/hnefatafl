@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <thread>
-#include <queue>
+#include <deque>
 #include "asio.hpp"
 #include "core.h"
 
@@ -17,8 +17,15 @@ void MultiPlayer::startConnection(string ip, string port1, string port2) {
 }
 
 void MultiPlayer::add(string message) {
+  int length = message.length();
+  if (length < 10) {
+    int needed = 10 - length;
+    for (int i=0; i < needed; i++) {
+      message = message + "&";
+    }
+  }
   mtx.lock();
-  moves.push(message);
+  moves.push_back(message);
   mtx.unlock();
 }
 
@@ -33,8 +40,11 @@ void MultiPlayer::Producer(string port) {
         tcp::socket socket(io_service);
         acceptor.accept(socket);
         mtx.lock();
-        string message = moves.front();
-        moves.pop();
+        string message;
+        message = moves.front(); 
+        currentMessage = message;
+        verified = false;
+        moves.pop_front();
         mtx.unlock();
         asio::error_code ignored_error;
         asio::write(socket, asio::buffer(message), ignored_error);
@@ -61,7 +71,7 @@ void MultiPlayer::Consumer(string ip, string port) {
       asio::connect(socket, endpoint_iterator);
       
       for (;;) {
-        std::array<char, 8> buf;
+        std::array<char, 10> buf;
         asio::error_code error;
         
         socket.read_some(asio::buffer(buf), error);
@@ -85,15 +95,12 @@ void MultiPlayer::Consumer(string ip, string port) {
 void MultiPlayer::parseIncoming(string rawMessage) {
   if (rawMessage.back() == '&') {
     rawMessage.pop_back();
-    if (rawMessage.back() == '&') {
-      cout << rawMessage << endl;
-      return;
-    } else {
-    }
+    cout << rawMessage << endl;
   } else {
     if (rawMessage.front() == '!') {
       clientPlayer = rawMessage.back();
     }
+    cout << rawMessage << endl;
     return;
   }
   size_t found = rawMessage.find(":");
