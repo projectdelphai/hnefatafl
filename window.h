@@ -31,6 +31,7 @@ class Window : public QWidget
     void update();
     void makeClientWhite();
     void makeClientBlack();
+    void togglePlayerMode();
 
   private:
     QGridLayout *grid;
@@ -43,12 +44,14 @@ class Window : public QWidget
     QLabel *status;
     void updateBoard();
     MultiPlayer *network = new MultiPlayer();
+    QPushButton *playerMode;
     QPushButton *black;
     QPushButton *white;
     bool clientPlayerChosen = false;
     void freeze_window(bool enabled);
     Json::Value getRoot();
     QLineEdit *address;
+    bool singlePlayer = false;
 };
 
 #endif

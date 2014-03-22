@@ -45,17 +45,21 @@ Window::Window(QWidget *parent) : QWidget(parent)
   }
 
   QHBoxLayout *topStatus = new QHBoxLayout();
+  QHBoxLayout *bottomStatus = new QHBoxLayout();
   status = new QLabel("Status");
+  playerMode = new QPushButton("Multi");
   black = new QPushButton("Black");
   white = new QPushButton("White");
   address = new QLineEdit("1300,127.0.0.1:1400");
   QPushButton *startServer = new QPushButton("Connect");
   QPushButton *newGame = new QPushButton("New Game");
+  connect(playerMode, SIGNAL(clicked()), this, SLOT(togglePlayerMode()));
   connect(black, SIGNAL(clicked()), this, SLOT(makeClientBlack()));
   connect(white, SIGNAL(clicked()), this, SLOT(makeClientWhite()));
   connect(startServer, SIGNAL(clicked()), this, SLOT(startServer()));
   connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
-  topStatus->addWidget(status);
+  bottomStatus->addWidget(status);
+  topStatus->addWidget(playerMode);
   topStatus->addWidget(black);
   topStatus->addWidget(white);
   topStatus->addWidget(address);
@@ -64,12 +68,25 @@ Window::Window(QWidget *parent) : QWidget(parent)
 
   vbox->addLayout(topStatus);
   vbox->addLayout(grid);
+  vbox->addLayout(bottomStatus);
 
   updateBoard();
 
   QTimer *timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(1000);
+}
+
+void Window::togglePlayerMode() {
+  string currentMode = playerMode->text().toUtf8().constData();
+  if (currentMode == "Multi") {
+    singlePlayer = true;
+    playerMode->setText("Single");
+  } else if (currentMode == "Single") {
+    singlePlayer = false;
+    playerMode->setText("Multi");
+  } else {
+  }
 }
 
 void Window::makeClientBlack() {
@@ -219,7 +236,9 @@ void Window::ButtonClicked(const QString text) {
         new_position = position;
         Core *core = new Core();
         string success = core->query_next_move(original_position, new_position);
-        freeze_window(true);
+        if (!singlePlayer) {
+          freeze_window(true);
+        }
         if (success == "success") {
           string message = player + ":" + original_position + ":" + new_position + "&";
           network->add(message);
@@ -244,4 +263,3 @@ void Window::ButtonClicked(const QString text) {
     }
   }
 }
-  
