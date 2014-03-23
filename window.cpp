@@ -1,6 +1,8 @@
 #include <window.h>
+#include <options.h>
 #include <json/json.h>
 
+#include <QDesktopWidget>
 #include <QSignalMapper>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -47,18 +49,21 @@ Window::Window(QWidget *parent) : QWidget(parent)
   QHBoxLayout *topStatus = new QHBoxLayout();
   QHBoxLayout *bottomStatus = new QHBoxLayout();
   status = new QLabel("Status");
+  QPushButton *opts = new QPushButton("Opts");
   playerMode = new QPushButton("Multi");
   black = new QPushButton("Black");
   white = new QPushButton("White");
   address = new QLineEdit("1300,127.0.0.1:1400");
   QPushButton *startServer = new QPushButton("Connect");
   QPushButton *newGame = new QPushButton("New Game");
+  connect(opts, SIGNAL(clicked()), this, SLOT(showOptions()));
   connect(playerMode, SIGNAL(clicked()), this, SLOT(togglePlayerMode()));
   connect(black, SIGNAL(clicked()), this, SLOT(makeClientBlack()));
   connect(white, SIGNAL(clicked()), this, SLOT(makeClientWhite()));
   connect(startServer, SIGNAL(clicked()), this, SLOT(startServer()));
   connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
   bottomStatus->addWidget(status);
+  topStatus->addWidget(opts);
   topStatus->addWidget(playerMode);
   topStatus->addWidget(black);
   topStatus->addWidget(white);
@@ -75,6 +80,27 @@ Window::Window(QWidget *parent) : QWidget(parent)
   QTimer *timer = new QTimer(this);
   connect(timer, SIGNAL(timeout()), this, SLOT(update()));
   timer->start(1000);
+}
+
+void Window::showOptions() {
+  int width = 300;
+  int height = 300;
+  int screenWidth;
+  int screenHeight;
+  int x, y;
+
+  QDesktopWidget *desktop = QApplication::desktop();
+  screenWidth = desktop->width();
+  screenHeight = desktop->height();
+  x = (screenWidth - width)/2;
+  y = (screenHeight - height)/2;
+  
+  Options *options = new Options();
+  options->setParent(this, Qt::Dialog);
+  options->resize(width, height);
+  options->move(x,y);
+  options->setWindowTitle("Options");
+  options->show();
 }
 
 void Window::togglePlayerMode() {

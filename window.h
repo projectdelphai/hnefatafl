@@ -32,6 +32,7 @@ class Window : public QWidget
     void makeClientWhite();
     void makeClientBlack();
     void togglePlayerMode();
+    void showOptions();
 
   private:
     QGridLayout *grid;

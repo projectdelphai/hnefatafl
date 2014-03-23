@@ -8,8 +8,8 @@ QT += widgets
 INCLUDEPATH += . 
 
 # Input
-SOURCES += core.cpp hnefatafl.cpp window.cpp multiplayer.cpp
-HEADERS += core.h window.h multiplayer.h
+SOURCES += core.cpp hnefatafl.cpp window.cpp multiplayer.cpp options.cpp
+HEADERS += core.h window.h multiplayer.h options.h
 
 QMAKE_LFLAGS += -L../hnefatafl -L../asio
 QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
