@@ -50,27 +50,9 @@ Window::Window(QWidget *parent) : QWidget(parent)
   QHBoxLayout *bottomStatus = new QHBoxLayout();
   status = new QLabel("Status");
   QPushButton *opts = new QPushButton("Opts");
-  playerMode = new QPushButton("Multi");
-  black = new QPushButton("Black");
-  white = new QPushButton("White");
-  address = new QLineEdit("1300,127.0.0.1:1400");
-  QPushButton *startServer = new QPushButton("Connect");
-  QPushButton *newGame = new QPushButton("New Game");
   connect(opts, SIGNAL(clicked()), this, SLOT(showOptions()));
-  connect(playerMode, SIGNAL(clicked()), this, SLOT(togglePlayerMode()));
-  connect(black, SIGNAL(clicked()), this, SLOT(makeClientBlack()));
-  connect(white, SIGNAL(clicked()), this, SLOT(makeClientWhite()));
-  connect(startServer, SIGNAL(clicked()), this, SLOT(startServer()));
-  connect(newGame, SIGNAL(clicked()), this, SLOT(resetBoard()));
   bottomStatus->addWidget(status);
   topStatus->addWidget(opts);
-  topStatus->addWidget(playerMode);
-  topStatus->addWidget(black);
-  topStatus->addWidget(white);
-  topStatus->addWidget(address);
-  topStatus->addWidget(startServer);
-  topStatus->addWidget(newGame);
-
   vbox->addLayout(topStatus);
   vbox->addLayout(grid);
   vbox->addLayout(bottomStatus);
@@ -101,32 +83,6 @@ void Window::showOptions() {
   options->move(x,y);
   options->setWindowTitle("Options");
   options->show();
-}
-
-void Window::togglePlayerMode() {
-  string currentMode = playerMode->text().toUtf8().constData();
-  if (currentMode == "Multi") {
-    singlePlayer = true;
-    playerMode->setText("Single");
-  } else if (currentMode == "Single") {
-    singlePlayer = false;
-    playerMode->setText("Multi");
-  } else {
-  }
-}
-
-void Window::makeClientBlack() {
-  clientPlayer = "b";
-  black->setDisabled(true);
-  white->setDisabled(true);
-  clientPlayerChosen = true;
-}
-
-void Window::makeClientWhite() {
-  clientPlayer = "w";
-  black->setDisabled(true);
-  white->setDisabled(true);
-  clientPlayerChosen = true;
 }
 
 void Window::update() {

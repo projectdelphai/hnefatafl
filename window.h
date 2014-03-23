@@ -23,16 +23,16 @@ class Window : public QWidget
 
   public:
     Window(QWidget *parent = 0);
+    bool singlePlayer = false;
+    string clientPlayer;
+    bool clientPlayerChosen = false;
    
-  private slots: 
+  public slots: 
     void ButtonClicked(const QString text);
-    void resetBoard();
     void startServer();
     void update();
-    void makeClientWhite();
-    void makeClientBlack();
-    void togglePlayerMode();
     void showOptions();
+    void resetBoard();
 
   private:
     QGridLayout *grid;
@@ -40,7 +40,6 @@ class Window : public QWidget
     string original_position;
     string new_position;
     string player;
-    string clientPlayer;
     bool isPieceChosen = false;
     QLabel *status;
     void updateBoard();
@@ -48,11 +47,9 @@ class Window : public QWidget
     QPushButton *playerMode;
     QPushButton *black;
     QPushButton *white;
-    bool clientPlayerChosen = false;
     void freeze_window(bool enabled);
     Json::Value getRoot();
     QLineEdit *address;
-    bool singlePlayer = false;
 };
 
 #endif
