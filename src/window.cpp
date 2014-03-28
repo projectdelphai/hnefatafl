@@ -88,7 +88,7 @@ void Window::showOptions() {
 
 string Window::getHome() {
   string homePath = QDir::homePath().toUtf8().constData();
-  string pieces = homePath + "/hnefatafl-data";
+  string pieces = homePath + "/.hnefatafl-data";
   return pieces;
 }
 
