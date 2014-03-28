@@ -18,7 +18,7 @@ HEADERS += src/core.h \
            src/multiplayer.h \
            src/options.h
 
-QMAKE_LFLAGS += -L../hnefatafl -L../hnefatafl/src
+QMAKE_LFLAGS += -L./ -L./src
 QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
 QMAKE_CXXFLAGS += -std=c++0x
 DEFINES += ASIO_STANDALONE
