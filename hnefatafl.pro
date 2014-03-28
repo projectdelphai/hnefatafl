@@ -8,10 +8,21 @@ QT += widgets
 INCLUDEPATH += . 
 
 # Input
-SOURCES += core.cpp hnefatafl.cpp window.cpp multiplayer.cpp options.cpp
-HEADERS += core.h window.h multiplayer.h options.h
+SOURCES += src/core.cpp \
+           src/hnefatafl.cpp \
+           src/window.cpp \
+           src/multiplayer.cpp \
+           src/options.cpp
+HEADERS += src/core.h \
+           src/window.h \
+           src/multiplayer.h \
+           src/options.h
 
-QMAKE_LFLAGS += -L../hnefatafl -L../asio
+QMAKE_LFLAGS += -L../hnefatafl -L../hnefatafl/src
 QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
 QMAKE_CXXFLAGS += -std=c++0x
 DEFINES += ASIO_STANDALONE
+
+DESTDIR = release
+OBJECTS_DIR = tmp
+MOC_DIR = src
