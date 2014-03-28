@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QLineEdit>
+#include <QDir>
 
 #include <iostream>
 #include <fstream>
@@ -85,6 +86,12 @@ void Window::showOptions() {
   options->show();
 }
 
+string Window::getHome() {
+  string homePath = QDir::homePath().toUtf8().constData();
+  string pieces = homePath + "/hnefatafl-data";
+  return pieces;
+}
+
 void Window::update() {
   if (network->update) {
     updateBoard();
@@ -119,7 +126,7 @@ void Window::startServer() {
 void Window::resetBoard() {
   string pieces = "{\"player\":\"b\",\"d1\":\"b01\",\"e1\":\"b02\",\"f1\":\"b03\",\"g1\":\"b04\",\"h1\":\"b05\",\"f2\":\"b06\",\"k4\":\"b07\",\"k5\":\"b08\",\"k6\":\"b09\",\"k7\":\"b10\",\"k8\":\"b11\",\"j6\":\"b12\",\"d11\":\"b13\",\"e11\":\"b14\",\"f11\":\"b15\",\"g11\":\"b16\",\"h11\":\"b17\",\"f10\":\"b18\",\"a8\":\"b19\",\"a7\":\"b20\",\"a6\":\"b21\",\"a5\":\"b22\",\"a4\":\"b23\",\"b6\":\"b24\",\"f4\":\"w01\",\"e5\":\"w02\",\"f5\":\"w03\",\"g5\":\"w04\",\"d6\":\"w05\",\"e6\":\"w06\",\"f6\":\"king\",\"g6\":\"w08\",\"h6\":\"w09\",\"e7\":\"w10\",\"f7\":\"w11\",\"g7\":\"w12\",\"f8\":\"w13\"}";
   ofstream savefile;
-  savefile.open("pieces");
+  savefile.open(getHome());
   savefile << pieces;
   savefile.close();
 
@@ -139,7 +146,7 @@ void Window::resetBoard() {
 
 Json::Value Window::getRoot() {
   Json::Value root = new Json::Value();
-  std::ifstream ifs("pieces");
+  std::ifstream ifs(getHome());
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Reader reader;
@@ -213,7 +220,7 @@ void Window::ButtonClicked(const QString text) {
       if (piece.empty() == true || piece == "none") {
         new_position = position;
         Core *core = new Core();
-        string success = core->query_next_move(original_position, new_position);
+        string success = core->query_next_move(original_position, new_position, getHome());
         if (!singlePlayer) {
           freeze_window(true);
         }

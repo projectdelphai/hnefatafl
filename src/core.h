@@ -9,10 +9,11 @@ using namespace std;
 class Core
 {
   public:
-    string query_next_move(string original_position, string new_position);
+    string query_next_move(string original_position, string new_position, string piecesPath = "pieces");
     string status;
 
   private:
+    string pieces;
     bool valid_move(string original_position, string new_position);
     void make_move(string original_position, string new_position);
     vector<string> check_for_capture(string new_position);

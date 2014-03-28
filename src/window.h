@@ -50,6 +50,7 @@ class Window : public QWidget
     void freeze_window(bool enabled);
     Json::Value getRoot();
     QLineEdit *address;
+    string getHome();
 };
 
 #endif

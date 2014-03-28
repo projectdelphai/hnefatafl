@@ -7,10 +7,13 @@
 #include <stdlib.h>
 #include <sstream>
 
+#include <QDir>
+
 using namespace std;
 
-string Core::query_next_move(string original_position, string new_position) {
-  std::ifstream ifs("pieces");
+string Core::query_next_move(string original_position, string new_position, string piecesPath) {
+  pieces = piecesPath;
+  std::ifstream ifs(pieces);
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Value root;
@@ -39,7 +42,7 @@ string Core::query_next_move(string original_position, string new_position) {
 }
 
 void Core::remove_captured(vector<string> captured) {
-  std::ifstream ifs("pieces");
+  std::ifstream ifs(pieces);
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Value root;
@@ -51,13 +54,13 @@ void Core::remove_captured(vector<string> captured) {
   }
 
   ofstream file;
-  file.open("pieces");
+  file.open(pieces);
   file << root;
   file.close();
 }
 
 vector<string> Core::check_for_capture(string new_position) {
-  std::ifstream ifs("pieces");
+  std::ifstream ifs(pieces);
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Value root;
@@ -134,7 +137,7 @@ vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
 }
 
 bool Core::valid_move(string original_position, string new_position) {
-  std::ifstream ifs("pieces");
+  std::ifstream ifs(pieces);
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Value root;
@@ -214,7 +217,7 @@ bool Core::valid_move(string original_position, string new_position) {
 }
 
 void Core::make_move(string original_position, string new_position) {
-  std::ifstream ifs("pieces");
+  std::ifstream ifs(pieces);
   std::string json_raw( (std::istreambuf_iterator<char>(ifs) ),
       (std::istreambuf_iterator<char>() ) );
   Json::Value root;
@@ -233,7 +236,7 @@ void Core::make_move(string original_position, string new_position) {
   root["player"] = current_player;
 
   ofstream file;
-  file.open("pieces");
+  file.open(pieces);
   file << root;
   file.close();
 }
