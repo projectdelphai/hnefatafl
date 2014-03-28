@@ -3360,9 +3360,38 @@ tmp/moc_options.o: src/moc_options.cpp
 
 ####### Install
 
-install:   FORCE
+install_binary: first FORCE
+	@test -d $(INSTALL_ROOT)/usr/bin || mkdir -p $(INSTALL_ROOT)/usr/bin
+	-$(INSTALL_PROGRAM) /home/projectdelphai/github/hnefatafl/release/hnefatafl $(INSTALL_ROOT)/usr/bin/
+	-strip $(INSTALL_ROOT)/usr/bin/hnefatafl
 
-uninstall:   FORCE
+uninstall_binary: FORCE
+	-$(DEL_FILE) -r $(INSTALL_ROOT)/usr/bin/hnefatafl
+	-$(DEL_DIR) $(INSTALL_ROOT)/usr/bin/ 
+
+
+install_data: first FORCE
+	@test -d $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data || mkdir -p $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data
+	-$(INSTALL_FILE) /home/projectdelphai/github/hnefatafl/release/hnefatafl-data $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data/
+
+uninstall_data: FORCE
+	-$(DEL_FILE) -r $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data/hnefatafl-data
+	-$(DEL_DIR) $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data/ 
+
+
+install_shared: first FORCE
+	@test -d $(INSTALL_ROOT)/usr/lib || mkdir -p $(INSTALL_ROOT)/usr/lib
+	-$(INSTALL_PROGRAM) /home/projectdelphai/github/hnefatafl/release/libjson_linux-gcc-4.8.2_libmt.so $(INSTALL_ROOT)/usr/lib/
+	-strip $(INSTALL_ROOT)/usr/lib/libjson_linux-gcc-4.8.2_libmt.so
+
+uninstall_shared: FORCE
+	-$(DEL_FILE) -r $(INSTALL_ROOT)/usr/lib/libjson_linux-gcc-4.8.2_libmt.so
+	-$(DEL_DIR) $(INSTALL_ROOT)/usr/lib/ 
+
+
+install:  install_binary install_data install_shared  FORCE
+
+uninstall: uninstall_binary uninstall_data uninstall_shared   FORCE
 
 FORCE:
 

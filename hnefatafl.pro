@@ -6,6 +6,9 @@ TEMPLATE = app
 TARGET = hnefatafl
 QT += widgets
 INCLUDEPATH += . 
+DESTDIR = release
+OBJECTS_DIR = tmp
+MOC_DIR = src
 
 # Input
 SOURCES += src/core.cpp \
@@ -18,11 +21,18 @@ HEADERS += src/core.h \
            src/multiplayer.h \
            src/options.h
 
+# Configurations
+
 QMAKE_LFLAGS += -L./ -L./src
 QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
 QMAKE_CXXFLAGS += -std=c++0x
 DEFINES += ASIO_STANDALONE
 
-DESTDIR = release
-OBJECTS_DIR = tmp
-MOC_DIR = src
+# Install
+binary.path = /usr/bin
+binary.files = release/hnefatafl
+data.path = $HOME/.hnefatafl-data
+data.files = release/hnefatafl-data
+shared.path = /usr/lib
+shared.files = release/libjson_linux-gcc-4.8.2_libmt.so
+INSTALLS += binary data shared
