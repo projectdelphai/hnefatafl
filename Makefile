@@ -17,7 +17,7 @@ CFLAGS        = -pipe -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector -
 CXXFLAGS      = -pipe -std=c++0x -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/qt/mkspecs/linux-g++ -I. -I. -I/usr/include/qt -I/usr/include/qt/QtWidgets -I/usr/include/qt/QtGui -I/usr/include/qt/QtCore -Isrc
 LINK          = g++
-LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -L../hnefatafl -L../hnefatafl/src -Wl,-O1
+LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -L./ -L./src -Wl,-O1
 LIBS          = $(SUBLIBS) -ljson_linux-gcc-4.8.2_libmt -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
@@ -2471,6 +2471,9 @@ tmp/window.o: src/window.cpp src/window.h \
 		/usr/include/qt/QtCore/QTimer \
 		/usr/include/qt/QtCore/qtimer.h \
 		/usr/include/qt/QtCore/qbasictimer.h \
+		/usr/include/qt/QtCore/QDir \
+		/usr/include/qt/QtCore/qdir.h \
+		/usr/include/qt/QtCore/qfileinfo.h \
 		src/core.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tmp/window.o src/window.cpp
 
