@@ -20,6 +20,7 @@
 #include "core.h"
 #include <deque>
 #include <thread>
+#include <sstream>
 
 using namespace std;
 
@@ -38,7 +39,9 @@ Window::Window(QWidget *parent) : QWidget(parent)
       QPushButton *btn = new QPushButton();
       btn->setMinimumWidth(55);
       btn->setMinimumHeight(55);
-      string second = std::to_string(horizValues[i]+1);
+      stringstream ss;
+      ss << horizValues[i]+1;
+      string second = ss.str();
       string first = std::string() + "abcdefghijk"[j];
       connect(btn, SIGNAL(clicked()), signalMapper, SLOT(map()));
       QString pos = QString::fromStdString(first+second);

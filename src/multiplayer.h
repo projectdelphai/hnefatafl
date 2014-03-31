@@ -3,7 +3,7 @@
 
 #include "asio.hpp"
 #include <deque>
-#include <mutex>
+//#include <mutex>
 #include <condition_variable>
 
 using namespace std;
@@ -12,7 +12,7 @@ class MultiPlayer
 {
   public:
     deque<string> moves;
-    mutex mtx;
+    //mutex mtx;
     void add(string message);
     void Producer(string address);
     void Consumer(string ip, string port);

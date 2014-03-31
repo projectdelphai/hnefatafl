@@ -15,18 +15,21 @@ SOURCES += src/core.cpp \
            src/hnefatafl.cpp \
            src/window.cpp \
            src/multiplayer.cpp \
-           src/options.cpp
+           src/options.cpp \
+           src/jsoncpp.cpp
 HEADERS += src/core.h \
            src/window.h \
            src/multiplayer.h \
-           src/options.h
+           src/options.h \ 
+           src/json/json-forwards.h \ 
+           src/json/json.h
 
 # Configurations
 
-QMAKE_LFLAGS += -L./ -L./src
-QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
-QMAKE_CXXFLAGS += -std=c++0x
-DEFINES += ASIO_STANDALONE
+# QMAKE_LFLAGS += -L./ -L./src
+# QMAKE_LIBS += -ljson_linux-gcc-4.8.2_libmt
+QMAKE_CXXFLAGS += -std=c++11
+DEFINES += ASIO_STANDALONE JSON_IS_AMALGAMATION
 
 # Install
 binary.path = /usr/bin

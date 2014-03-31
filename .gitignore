@@ -1,3 +1,7 @@
 jsoncpp-src-0.5.0/*
 *.o
 hnefatafl
+release/hnefatafl.exe
+hnefatafl_plugin_import.cpp
+Makefile.Debug
+Makefile.Release

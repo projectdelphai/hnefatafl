@@ -24,9 +24,9 @@ void MultiPlayer::add(string message) {
       message = message + "&";
     }
   }
-  mtx.lock();
+  //mtx.lock();
   moves.push_back(message);
-  mtx.unlock();
+  //mtx.unlock();
 }
 
 void MultiPlayer::Producer(string port) {
@@ -39,13 +39,13 @@ void MultiPlayer::Producer(string port) {
       if (!moves.empty()) {
         tcp::socket socket(io_service);
         acceptor.accept(socket);
-        mtx.lock();
+        //mtx.lock();
         string message;
         message = moves.front(); 
         currentMessage = message;
         verified = false;
         moves.pop_front();
-        mtx.unlock();
+        //mtx.unlock();
         asio::error_code ignored_error;
         asio::write(socket, asio::buffer(message), ignored_error);
       } else {

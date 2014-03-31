@@ -12,13 +12,13 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DASIO_STANDALONE -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DASIO_STANDALONE -DJSON_IS_AMALGAMATION -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
-CXXFLAGS      = -pipe -std=c++0x -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
+CXXFLAGS      = -pipe -std=c++11 -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/qt/mkspecs/linux-g++ -I. -I. -I/usr/include/qt -I/usr/include/qt/QtWidgets -I/usr/include/qt/QtGui -I/usr/include/qt/QtCore -Isrc
 LINK          = g++
-LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -L./ -L./src -Wl,-O1
-LIBS          = $(SUBLIBS) -ljson_linux-gcc-4.8.2_libmt -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LFLAGS        = -Wl,-O1,--sort-common,--as-needed,-z,relro -Wl,-O1
+LIBS          = $(SUBLIBS) -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/qt/bin/qmake
@@ -49,13 +49,15 @@ SOURCES       = src/core.cpp \
 		src/hnefatafl.cpp \
 		src/window.cpp \
 		src/multiplayer.cpp \
-		src/options.cpp src/moc_window.cpp \
+		src/options.cpp \
+		src/jsoncpp.cpp src/moc_window.cpp \
 		src/moc_options.cpp
 OBJECTS       = tmp/core.o \
 		tmp/hnefatafl.o \
 		tmp/window.o \
 		tmp/multiplayer.o \
 		tmp/options.o \
+		tmp/jsoncpp.o \
 		tmp/moc_window.o \
 		tmp/moc_options.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
@@ -328,7 +330,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d tmp/hnefatafl1.0.0 || mkdir -p tmp/hnefatafl1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents src/core.h src/window.h src/multiplayer.h src/options.h tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents src/core.cpp src/hnefatafl.cpp src/window.cpp src/multiplayer.cpp src/options.cpp tmp/hnefatafl1.0.0/ && (cd `dirname tmp/hnefatafl1.0.0` && $(TAR) hnefatafl1.0.0.tar hnefatafl1.0.0 && $(COMPRESS) hnefatafl1.0.0.tar) && $(MOVE) `dirname tmp/hnefatafl1.0.0`/hnefatafl1.0.0.tar.gz . && $(DEL_FILE) -r tmp/hnefatafl1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents src/core.h src/window.h src/multiplayer.h src/options.h src/json/json-forwards.h src/json/json.h tmp/hnefatafl1.0.0/ && $(COPY_FILE) --parents src/core.cpp src/hnefatafl.cpp src/window.cpp src/multiplayer.cpp src/options.cpp src/jsoncpp.cpp tmp/hnefatafl1.0.0/ && (cd `dirname tmp/hnefatafl1.0.0` && $(TAR) hnefatafl1.0.0.tar hnefatafl1.0.0 && $(COMPRESS) hnefatafl1.0.0.tar) && $(MOVE) `dirname tmp/hnefatafl1.0.0`/hnefatafl1.0.0.tar.gz . && $(DEL_FILE) -r tmp/hnefatafl1.0.0
 
 
 clean:compiler_clean 
@@ -490,13 +492,6 @@ src/moc_window.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtGui/qpen.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		src/multiplayer.h \
 		src/asio.hpp \
 		src/asio/async_result.hpp \
@@ -995,13 +990,6 @@ src/moc_options.cpp: src/window.h \
 		/usr/include/qt/QtGui/qpen.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		src/multiplayer.h \
 		src/asio.hpp \
 		src/asio/async_result.hpp \
@@ -1379,13 +1367,6 @@ compiler_clean: compiler_moc_header_clean
 
 tmp/core.o: src/core.cpp src/core.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		/usr/include/qt/QtCore/QDir \
 		/usr/include/qt/QtCore/qdir.h \
 		/usr/include/qt/QtCore/qstring.h \
@@ -1593,13 +1574,6 @@ tmp/hnefatafl.o: src/hnefatafl.cpp src/window.h \
 		/usr/include/qt/QtGui/qpen.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		src/multiplayer.h \
 		src/asio.hpp \
 		src/asio/async_result.hpp \
@@ -2099,13 +2073,6 @@ tmp/window.o: src/window.cpp src/window.h \
 		/usr/include/qt/QtGui/qpen.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		src/multiplayer.h \
 		src/asio.hpp \
 		src/asio/async_result.hpp \
@@ -2836,14 +2803,7 @@ tmp/multiplayer.o: src/multiplayer.cpp src/multiplayer.h \
 		src/asio/write_at.hpp \
 		src/asio/impl/write_at.hpp \
 		src/core.h \
-		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h
+		src/json/json.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tmp/multiplayer.o src/multiplayer.cpp
 
 tmp/options.o: src/options.cpp src/options.h \
@@ -2984,13 +2944,6 @@ tmp/options.o: src/options.cpp src/options.h \
 		/usr/include/qt/QtGui/qpen.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		src/json/json.h \
-		src/json/autolink.h \
-		src/json/config.h \
-		src/json/value.h \
-		src/json/forwards.h \
-		src/json/reader.h \
-		src/json/features.h \
-		src/json/writer.h \
 		src/multiplayer.h \
 		src/asio.hpp \
 		src/asio/async_result.hpp \
@@ -3352,6 +3305,9 @@ tmp/options.o: src/options.cpp src/options.h \
 		/usr/include/qt/QtWidgets/QHBoxLayout
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tmp/options.o src/options.cpp
 
+tmp/jsoncpp.o: src/jsoncpp.cpp src/json/json.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tmp/jsoncpp.o src/jsoncpp.cpp
+
 tmp/moc_window.o: src/moc_window.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tmp/moc_window.o src/moc_window.cpp
 
@@ -3379,19 +3335,9 @@ uninstall_data: FORCE
 	-$(DEL_DIR) $(INSTALL_ROOT)/home/projectdelphai/github/hnefatafl/$HOME/.hnefatafl-data/ 
 
 
-install_shared: first FORCE
-	@test -d $(INSTALL_ROOT)/usr/lib || mkdir -p $(INSTALL_ROOT)/usr/lib
-	-$(INSTALL_PROGRAM) /home/projectdelphai/github/hnefatafl/release/libjson_linux-gcc-4.8.2_libmt.so $(INSTALL_ROOT)/usr/lib/
-	-strip $(INSTALL_ROOT)/usr/lib/libjson_linux-gcc-4.8.2_libmt.so
+install:  install_binary install_data  FORCE
 
-uninstall_shared: FORCE
-	-$(DEL_FILE) -r $(INSTALL_ROOT)/usr/lib/libjson_linux-gcc-4.8.2_libmt.so
-	-$(DEL_DIR) $(INSTALL_ROOT)/usr/lib/ 
-
-
-install:  install_binary install_data install_shared  FORCE
-
-uninstall: uninstall_binary uninstall_data uninstall_shared   FORCE
+uninstall: uninstall_binary uninstall_data   FORCE
 
 FORCE:
 

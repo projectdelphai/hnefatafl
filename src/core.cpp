@@ -114,13 +114,19 @@ vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
   string second = position.substr(1);
   vector<string> pieces;
   if (second != "11") {
-    if (valid_piece(root, first_char+std::to_string(atoi(second.c_str())+1))) {
-      pieces.push_back(first_char+std::to_string((atoi(second.c_str()))+1));
+    stringstream ss;
+    ss << atoi(second.c_str())+1;
+    string secondString = ss.str();
+    if (valid_piece(root, first_char+secondString)) {
+      pieces.push_back(first_char+secondString);
     }
   }
   if (second != "1") {
-    if (valid_piece(root, first_char+std::to_string((atoi(second.c_str()))-1))) {
-      pieces.push_back(first_char+std::to_string((atoi(second.c_str()))-1));
+    stringstream ss;
+    ss << atoi(second.c_str())+1;
+    string secondString = ss.str();
+    if (valid_piece(root, first_char+secondString)) {
+      pieces.push_back(first_char+secondString);
     }
   }
   if (first_char != 'k') {
@@ -169,7 +175,10 @@ bool Core::valid_move(string original_position, string new_position) {
           int end = atoi(new_position.substr(1).c_str());
           std::string pieceInWay = "false";
           for (int i=start+1; i < end+1; i++) {
-            Json::Value node = root[original_position.at(0) + std::to_string(i)];
+            stringstream ss;
+            ss << i;
+            string s = ss.str();
+            Json::Value node = root[original_position.at(0) + s];
             if (node.empty() == false && node != "none") {
               pieceInWay = "true";
             }
