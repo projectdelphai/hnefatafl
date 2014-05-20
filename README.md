@@ -15,18 +15,19 @@ Currently, there is only verified support for linux platforms (specifically arch
 Dependencies:
 
  1. gcc/g++
+ 1. Qt 5
 
-Packaged Dependencies:
+Packaged Dependencies (no installation needed):
 
  1. json-cpp
 
 To compile the package:
 
-    g++ -L../hnefatafl -ljson_linux-gcc-4.8.2_libmt core.cpp
+    make
 
 Then run it with:
 
-    ./a.out
+    ./release/hnefatafl
 
 Contributing
 ---------------
