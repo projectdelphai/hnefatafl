@@ -113,6 +113,7 @@ vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
   char first_char = position.at(0);
   string second = position.substr(1);
   vector<string> pieces;
+  // check for piece above
   if (second != "11") {
     stringstream ss;
     ss << atoi(second.c_str())+1;
@@ -121,19 +122,22 @@ vector<string> Core::get_adjacent_pieces(Json::Value root, string position) {
       pieces.push_back(first_char+secondString);
     }
   }
+  // check for piece below
   if (second != "1") {
     stringstream ss;
-    ss << atoi(second.c_str())+1;
+    ss << atoi(second.c_str())-1;
     string secondString = ss.str();
     if (valid_piece(root, first_char+secondString)) {
       pieces.push_back(first_char+secondString);
     }
   }
+  // check for piece to right
   if (first_char != 'k') {
     if (valid_piece(root, std::string()+(static_cast<char>(first_char+1))+second)) {
       pieces.push_back(std::string()+(static_cast<char>(first_char+1))+second);
     }
   }
+  // check for piece to left
   if (first_char != 'a') {
     if (valid_piece(root, std::string()+(static_cast<char>(first_char-1))+second)) {
       pieces.push_back(std::string()+(static_cast<char>(first_char-1))+second);
