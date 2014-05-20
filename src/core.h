@@ -14,6 +14,7 @@ class Core
 
   private:
     string pieces;
+    bool check_for_self_capture;
     bool valid_move(string original_position, string new_position);
     void make_move(string original_position, string new_position);
     vector<string> check_for_capture(string new_position);

@@ -11,7 +11,7 @@ Options::Options(QWidget *parent) : QWidget(parent)
   QVBoxLayout *content = new QVBoxLayout(this);
   QHBoxLayout *topBox = new QHBoxLayout();
   QHBoxLayout *secondBox = new QHBoxLayout();
-  playerMode = new QPushButton("Multi");
+  playerMode = new QPushButton("Single");
   black = new QPushButton("Black");
   white = new QPushButton("White");
   address = new QLineEdit("1300,127.0.0.1:1400");

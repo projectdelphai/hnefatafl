@@ -28,6 +28,7 @@ string Core::query_next_move(string original_position, string new_position, stri
         value = "ww";
       }
     }
+    check_for_self_capture = false;
     vector<string> captured = check_for_capture(new_position);
     for (string position : captured) {
       if (root[position].asString() == "king") {
@@ -73,6 +74,11 @@ vector<string> Core::check_for_capture(string new_position) {
   vector<string> ready_for_capture;
   for (string position : adjacent_pieces) {
     if (root[position].asString().at(0) != ally) {
+      if (!check_for_self_capture) {
+        check_for_self_capture = true;
+        vector<string> captured = check_for_capture(position);
+        remove_captured(captured);
+      }
       vector<string> adjacent_pieces_2 = get_adjacent_pieces(root, position);
       int allies = 0;
       for (string position : adjacent_pieces_2) {

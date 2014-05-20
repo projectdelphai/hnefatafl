@@ -23,7 +23,7 @@ class Window : public QWidget
 
   public:
     Window(QWidget *parent = 0);
-    bool singlePlayer = false;
+    bool singlePlayer = true;
     string clientPlayer;
     bool clientPlayerChosen = false;
    
