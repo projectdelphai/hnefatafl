@@ -33,6 +33,14 @@ Options::Options(QWidget *parent) : QWidget(parent)
   content->addLayout(secondBox);
 }
 
+void Options::setPlayerMode(bool single) {
+  if (single) {
+    playerMode->setText("Single");
+  } else {
+    playerMode->setText("Multi");
+  }
+}
+
 void Options::togglePlayerMode() {
   string currentMode = playerMode->text().toUtf8().constData();
   if (currentMode == "Multi") {

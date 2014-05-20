@@ -86,6 +86,7 @@ void Window::showOptions() {
   options->resize(width, height);
   options->move(x,y);
   options->setWindowTitle("Options");
+  options->setPlayerMode(singlePlayer);
   options->show();
 }
 
@@ -143,8 +144,8 @@ void Window::resetBoard() {
       btn->setPalette(pal);
     }
   }
-
   updateBoard();
+  freeze_window(false);
 }
 
 Json::Value Window::getRoot() {

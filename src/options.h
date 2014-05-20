@@ -13,6 +13,7 @@ class Options : public QWidget
 
   public:
     Options(QWidget *parent = 0);
+    void setPlayerMode(bool single);
 
   private slots:
     void togglePlayerMode();
