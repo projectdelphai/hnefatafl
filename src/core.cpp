@@ -74,6 +74,12 @@ vector<string> Core::check_for_capture(string new_position) {
   vector<string> ready_for_capture;
   for (string position : adjacent_pieces) {
     if (root[position].asString().at(0) != ally) {
+      if (ally == 'k' && root[position].asString().at(0) == 'w') {
+        break;
+      } 
+      if (ally == 'w' && root[position].asString().at(0) == 'k') {
+        break;
+      }
       if (!check_for_self_capture) {
         check_for_self_capture = true;
         vector<string> captured = check_for_capture(position);
