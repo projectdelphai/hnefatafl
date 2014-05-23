@@ -187,16 +187,12 @@ bool Core::valid_move(string original_position, string new_position) {
         // checks if piece is in way
         // vertical check
         if (original_position.at(0) == new_position.at(0)) {
-          int a = atoi(original_position.substr(1).c_str());
-          int b = atoi(new_position.substr(1).c_str());
-          int start;
-          int end;
-          if (a < b) {
-            start = a;
-            end = b;
-          } else {
-            start = b;
-            end = a;
+          int start = atoi(original_position.substr(1).c_str());
+          int end = atoi(new_position.substr(1).c_str());
+          if (start > end) {
+            int tmp = start;
+            start = end;
+            end = tmp;
           }
           cout << start << endl;
           cout << end << endl;
