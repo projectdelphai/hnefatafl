@@ -194,8 +194,6 @@ bool Core::valid_move(string original_position, string new_position) {
             start = end;
             end = tmp;
           }
-          cout << start << endl;
-          cout << end << endl;
           std::string pieceInWay = "false";
           for (int i=start+1; i < end; i++) {
             stringstream ss;
